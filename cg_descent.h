@@ -2,7 +2,7 @@
 #define CG_DESCENT_H_
 
 /*
-  cg_descent.h - v6.8.0 - unconstrained nonlinear optimization single header lib
+  cg_descent.h - v6.8.1 - unconstrained nonlinear optimization single header lib
 
   author: Ilya Kolbin (iskolbin@gmail.com)
   url: github.com/iskolbin/cg_descent
@@ -655,7 +655,7 @@ static void cg_printParms
 
 /* If the BLAS are not installed, then the following definitions
    can be ignored. If the BLAS are available, then to use them,
-   comment out the the next statement (#define NOBLAS) and make
+   comment out the the next statement (#define CG_NOBLAS) and make
    any needed adjustments to CG_BLAS_UNDERSCORE and the START parameters.
    cg_descent already does loop unrolling, so there is likely no
    benefit from using unrolled BLAS. There could be a benefit from
@@ -3095,7 +3095,7 @@ static void cg_matvec
 )
 {
 /* if the blas have not been installed, then hand code the produce */
-#ifdef NOBLAS
+#ifdef CG_NOBLAS
     CG_INT j, l ;
     l = 0 ;
     if ( w )
@@ -3118,7 +3118,7 @@ static void cg_matvec
 #endif
 
 /* if the blas have been installed, then possibly call gdemv */
-#ifndef NOBLAS
+#ifndef CG_NOBLAS
     CG_INT j, l ;
     CG_BLAS_INT M, N ;
     if ( w || (!w && (m*n < CG_MATVEC_START)) )
@@ -3213,7 +3213,7 @@ static FLOAT cg_inf
     CG_INT     n /* length of vector */
 )
 {
-#ifdef NOBLAS
+#ifdef CG_NOBLAS
     CG_INT i, n5 ;
     FLOAT t ;
     t = 0 ;
@@ -3231,7 +3231,7 @@ static FLOAT cg_inf
     return (t) ;
 #endif
 
-#ifndef NOBLAS
+#ifndef CG_NOBLAS
     CG_INT i, n5 ;
     FLOAT t ;
     CG_BLAS_INT N ;
@@ -3329,7 +3329,7 @@ static void cg_scale
     n5 = n % 5 ;
     if ( y == x)
     {
-#ifdef NOBLAS
+#ifdef CG_NOBLAS
         for (i = 0; i < n5; i++) y [i] *= s ;
         for (; i < n;)
         {
@@ -3345,7 +3345,7 @@ static void cg_scale
             i++ ;
         }
 #endif
-#ifndef NOBLAS
+#ifndef CG_NOBLAS
         if ( n < CG_DSCAL_START )
         {
             for (i = 0; i < n5; i++) y [i] *= s ;
@@ -3446,7 +3446,7 @@ static void cg_daxpy
     CG_INT         n  /* length of the vectors */
 )
 {
-#ifdef NOBLAS
+#ifdef CG_NOBLAS
     CG_INT i, n5 ;
     n5 = n % 5 ;
     if (alpha == -1)
@@ -3475,7 +3475,7 @@ static void cg_daxpy
     }
 #endif
 
-#ifndef NOBLAS
+#ifndef CG_NOBLAS
     CG_INT i, n5 ;
     CG_BLAS_INT N ;
     if ( n < CG_DAXPY_START )
@@ -3554,7 +3554,7 @@ static FLOAT cg_dot
     CG_INT     n /* length of vectors */
 )
 {
-#ifdef NOBLAS
+#ifdef CG_NOBLAS
     CG_INT i, n5 ;
     FLOAT t ;
     t = 0 ;
@@ -3569,7 +3569,7 @@ static FLOAT cg_dot
     return (t) ;
 #endif
 
-#ifndef NOBLAS
+#ifndef CG_NOBLAS
     CG_INT i, n5 ;
     FLOAT t ;
     CG_BLAS_INT N ;
@@ -3637,7 +3637,7 @@ static void cg_copy
     CG_INT     n  /* length of vectors */
 )
 {
-#ifdef NOBLAS
+#ifdef CG_NOBLAS
     CG_INT i, n5 ;
     n5 = n % 5 ;
     for (i = 0; i < n5; i++) y [i] = x [i] ;
@@ -3656,7 +3656,7 @@ static void cg_copy
     }
 #endif
 
-#ifndef NOBLAS
+#ifndef CG_NOBLAS
     CG_INT i, n5 ;
     CG_BLAS_INT N ;
     if ( n < CG_DCOPY_START )
