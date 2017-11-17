@@ -2,7 +2,7 @@
 #define CG_DESCENT_H_
 
 /*
-  cg_descent.h - v6.8.2 - unconstrained nonlinear optimization single header lib
+  cg_descent.h - v6.8.3 - unconstrained nonlinear optimization single header lib
 
   author: Ilya Kolbin (iskolbin@gmail.com)
   url: github.com/iskolbin/cg_descent
@@ -716,30 +716,30 @@ int cg_descent /*  return status of solution process:
                       11 (function nan or +-INF and could not be repaired)
                       12 (invalid choice for memory parameter) */
 (
-    CG_FLOAT            *x, /* input: starting guess, output: the solution */
-		CG_INT                n, /* problem dimension */
-    cg_stats       *Stat, /* structure with statistics (can be NULL) */
-    cg_parameter  *UParm, /* user parameters, NULL = use default parameters */
-    CG_FLOAT      grad_tol, /* StopRule = 1: |g|_infty <= max (grad_tol,
+    CG_FLOAT         *x, /* input: starting guess, output: the solution */
+		CG_INT            n, /* problem dimension */
+    cg_stats      *Stat, /* structure with statistics (can be NULL) */
+    cg_parameter *UParm, /* user parameters, NULL = use default parameters */
+    CG_FLOAT   grad_tol, /* StopRule = 1: |g|_infty <= max (grad_tol,
                                            StopFac*initial |g|_infty) [default]
                              StopRule = 0: |g|_infty <= grad_tol(1+|f|) */
-    CG_FLOAT      (*value) (CG_FLOAT *, CG_INT CG_CUSTOM),  /* f = value (x, n) */
-    void         (*grad) (CG_FLOAT *, CG_FLOAT *, CG_INT CG_CUSTOM), /* grad (g, x, n) */
-    CG_FLOAT    (*valgrad) (CG_FLOAT *, CG_FLOAT *, CG_INT CG_CUSTOM), /* f = valgrad (g, x, n),
+    CG_FLOAT   (*value) (CG_FLOAT *, CG_INT CG_CUSTOM),  /* f = value (x, n) */
+    void        (*grad) (CG_FLOAT *, CG_FLOAT *, CG_INT CG_CUSTOM), /* grad (g, x, n) */
+    CG_FLOAT (*valgrad) (CG_FLOAT *, CG_FLOAT *, CG_INT CG_CUSTOM), /* f = valgrad (g, x, n),
                           NULL = compute value & gradient using value & grad */
-    CG_FLOAT         *Work  /* NULL => let code allocate memory
-                             not NULL => use array Work for required memory
-                             The amount of memory needed depends on the value
-                             of the parameter memory in the Parm structure.
-                             memory > 0 => need (mem+6)*n + (3*mem+9)*mem + 5
-                                           where mem = CG_MIN(memory, n)
-                             memory = 0 => need 4*n */
+    CG_FLOAT *Work  /* NULL => let code allocate memory
+                       not NULL => use array Work for required memory
+                       The amount of memory needed depends on the value
+                       of the parameter memory in the Parm structure.
+                       memory > 0 => need (mem+6)*n + (3*mem+9)*mem + 5
+                       where mem = CG_MIN(memory, n)
+                       memory = 0 => need 4*n */
 		CG_CUSTOM
 )
 {
-    CG_INT     i, iter, IterRestart, maxit = 0, nrestart, nrestartsub = 0 ;
-    int     nslow, slowlimit, IterQuad, status, PrintLevel, QuadF ;
-    CG_FLOAT  delta2, Qk, Ck, fbest, gbest,
+    CG_INT i, iter, IterRestart, maxit = 0, nrestart, nrestartsub = 0 ;
+    int nslow, slowlimit, IterQuad, status, PrintLevel, QuadF ;
+    CG_FLOAT delta2, Qk, Ck, fbest, gbest,
             f, ftemp, gnorm, xnorm, gnorm2, dnorm2, denom,
             t, dphi, dphi0, alpha,
             ykyk, ykgk, dkyk, beta = 0, QuadTrust, tol,
@@ -3097,9 +3097,9 @@ static void cg_matvec
     CG_FLOAT *y, /* product vector */
     CG_FLOAT *A, /* dense matrix */
     CG_FLOAT *x, /* input vector */
-    int     n, /* number of columns of A */
-    CG_INT     m, /* number of rows of A */
-    int     w  /* T => y = A*x, F => y = A'*x */
+    int     n,   /* number of columns of A */
+    CG_INT  m,   /* number of rows of A */
+    int     w    /* T => y = A*x, F => y = A'*x */
 )
 {
 /* if the blas have not been installed, then hand code the produce */
@@ -3218,7 +3218,7 @@ static void cg_trisolve
 static CG_FLOAT cg_inf
 (
     CG_FLOAT *x, /* vector */
-    CG_INT     n /* length of vector */
+    CG_INT    n /* length of vector */
 )
 {
 #ifdef CG_NOBLAS
@@ -3278,7 +3278,7 @@ static void cg_scale0
     CG_FLOAT *y, /* output vector */
     CG_FLOAT *x, /* input vector */
     CG_FLOAT  s, /* scalar */
-    int     n /* length of vector */
+    int       n /* length of vector */
 )
 {
     int i, n5 ;
@@ -3330,7 +3330,7 @@ static void cg_scale
     CG_FLOAT *y, /* output vector */
     CG_FLOAT *x, /* input vector */
     CG_FLOAT  s, /* scalar */
-    CG_INT     n /* length of vector */
+    CG_INT    n /* length of vector */
 )
 {
     CG_INT i, n5 ;
@@ -3409,7 +3409,7 @@ static void cg_daxpy0
     CG_FLOAT     *x, /* input and output vector */
     CG_FLOAT     *d, /* direction */
     CG_FLOAT  alpha, /* stepsize */
-    int         n  /* length of the vectors */
+    int           n  /* length of the vectors */
 )
 {
     CG_INT i, n5 ;
@@ -3533,7 +3533,7 @@ static CG_FLOAT cg_dot0
 (
     CG_FLOAT *x, /* first vector */
     CG_FLOAT *y, /* second vector */
-    int     n /* length of vectors */
+    int       n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
@@ -3611,7 +3611,7 @@ static void cg_copy0
 (
     CG_FLOAT *y, /* output of copy */
     CG_FLOAT *x, /* input of copy */
-    int     n  /* length of vectors */
+    int       n  /* length of vectors */
 )
 {
     int i, n5 ;
@@ -3642,7 +3642,7 @@ static void cg_copy
 (
     CG_FLOAT *y, /* output of copy */
     CG_FLOAT *x, /* input of copy */
-    CG_INT     n  /* length of vectors */
+    CG_INT    n  /* length of vectors */
 )
 {
 #ifdef CG_NOBLAS
@@ -3710,7 +3710,7 @@ static void cg_step
     CG_FLOAT     *x, /* initial vector */
     CG_FLOAT     *d, /* search direction */
     CG_FLOAT  alpha, /* stepsize */
-    CG_INT         n  /* length of the vectors */
+    CG_INT        n  /* length of the vectors */
 )
 {
     CG_INT n5, i ;
@@ -3751,7 +3751,7 @@ static void cg_init
 (
     CG_FLOAT *x, /* input and output vector */
     CG_FLOAT  s, /* scalar */
-    CG_INT     n /* length of vector */
+    CG_INT    n /* length of vector */
 )
 {
     CG_INT i, n5 ;
@@ -3784,7 +3784,7 @@ static CG_FLOAT cg_update_2
     CG_FLOAT *gold, /* old g */
     CG_FLOAT *gnew, /* new g */
     CG_FLOAT    *d, /* d */
-    CG_INT        n /* length of vectors */
+    CG_INT       n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
@@ -3919,7 +3919,7 @@ static CG_FLOAT cg_update_inf
     CG_FLOAT *gold, /* old g */
     CG_FLOAT *gnew, /* new g */
     CG_FLOAT    *d, /* d */
-    CG_INT        n /* length of vectors */
+    CG_INT       n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
@@ -4020,7 +4020,7 @@ static CG_FLOAT cg_update_ykyk
     CG_FLOAT *gnew, /* new g */
     CG_FLOAT *Ykyk,
     CG_FLOAT *Ykgk,
-    CG_INT        n /* length of vectors */
+    CG_INT       n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
@@ -4097,7 +4097,7 @@ static CG_FLOAT cg_update_inf2
     CG_FLOAT   *gnew, /* new g */
     CG_FLOAT      *d, /* d */
     CG_FLOAT *gnorm2, /* 2-norm of g */
-    CG_INT          n /* length of vectors */
+    CG_INT         n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
@@ -4166,7 +4166,7 @@ static CG_FLOAT cg_update_d
     CG_FLOAT      *g,
     CG_FLOAT    beta,
     CG_FLOAT *gnorm2, /* 2-norm of g */
-    CG_INT          n /* length of vectors */
+    CG_INT         n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
@@ -4281,7 +4281,7 @@ static void cg_Yk
     CG_FLOAT *gold, /* initial vector */
     CG_FLOAT *gnew, /* search direction */
     CG_FLOAT  *yty, /* y'y */
-    CG_INT        n  /* length of the vectors */
+    CG_INT       n  /* length of the vectors */
 )
 {
     CG_INT n5, i ;
