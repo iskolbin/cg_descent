@@ -2,7 +2,7 @@
 #define CG_DESCENT_H_
 
 /*
-  cg_descent.h - v6.8.1 - unconstrained nonlinear optimization single header lib
+  cg_descent.h - v6.8.2 - unconstrained nonlinear optimization single header lib
 
   author: Ilya Kolbin (iskolbin@gmail.com)
   url: github.com/iskolbin/cg_descent
@@ -119,11 +119,19 @@
 #ifndef CG_FLOAT
 #define CG_FLOAT double
 #define CG_FLOAT_INF DBL_MAX
+#else
+#ifndef CG_FLOAT_INF
+#error "CG_FLOAT is redefined, you also need to define CG_FLOAT_INF"
+#endif
 #endif
 
 #ifndef CG_INT
 #define CG_INT size_t
 #define CG_INT_INF LONG_MAX
+#else
+#ifndef CG_INT_INF
+#error "CG_INT is redefined, you also need to define CG_INT_INF"
+#endif
 #endif
 
 #define CG_MAX(a,b) (((a) > (b)) ? (a) : (b))
@@ -212,25 +220,25 @@ typedef struct cg_parameter_struct /* user controlled parameters */
 
     /* when relative distance from current gradient to subspace <= eta0,
        enter subspace if subspace dimension = mem */
-    FLOAT eta0 ;
+    CG_FLOAT eta0 ;
 
     /* when relative distance from current gradient to subspace >= eta1,
        leave subspace */
-    FLOAT eta1 ;
+    CG_FLOAT eta1 ;
 
     /* when relative distance from current direction to subspace <= eta2,
        always enter subspace (invariant space) */
-    FLOAT eta2 ;
+    CG_FLOAT eta2 ;
 
     /* T => use approximate Wolfe line search
        F => use ordinary Wolfe line search, switch to approximate Wolfe when
                 |f_k+1-f_k| < AWolfeFac*C_k, C_k = average size of cost  */
     int    AWolfe ;
-    FLOAT AWolfeFac ;
+    CG_FLOAT AWolfeFac ;
 
     /* factor in [0, 1] used to compute average cost magnitude C_k as follows:
        Q_k = 1 + (Qdecay)Q_k-1, Q_0 = 0,  C_k = C_k-1 + (|f_k| - C_k-1)/Q_k */
-    FLOAT Qdecay ;
+    CG_FLOAT Qdecay ;
 
     /* terminate after nslow iterations without strict improvement in
        either function value or gradient */
@@ -240,41 +248,41 @@ typedef struct cg_parameter_struct /* user controlled parameters */
        T => ||proj_grad||_infty <= max(grad_tol,initial ||grad||_infty*StopFact)
        F => ||proj_grad||_infty <= grad_tol*(1 + |f_k|) */
     int    StopRule ;
-    FLOAT StopFac ;
+    CG_FLOAT StopFac ;
 
     /* T => estimated error in function value is eps*Ck,
        F => estimated error in function value is eps */
     int    PertRule ;
-    FLOAT eps ;
+    CG_FLOAT eps ;
 
     /* factor by which eps grows when line search fails during contraction */
-    FLOAT egrow ;
+    CG_FLOAT egrow ;
 
     /* T => attempt quadratic interpolation in line search when
                 |f_k+1 - f_k|/f_k <= QuadCutoff
        F => no quadratic interpolation step */
     int    QuadStep ;
-    FLOAT QuadCutOff ;
+    CG_FLOAT QuadCutOff ;
 
     /* maximum factor by which a quad step can reduce the step size */
-    FLOAT QuadSafe ;
+    CG_FLOAT QuadSafe ;
 
     /* T => when possible, use a cubic step in the line search */
     int UseCubic ;
 
     /* use cubic step when |f_k+1 - f_k|/|f_k| > CubicCutOff */
-    FLOAT CubicCutOff ;
+    CG_FLOAT CubicCutOff ;
 
     /* |f| < SmallCost*starting cost => skip QuadStep and set PertRule = 0*/
-    FLOAT SmallCost ;
+    CG_FLOAT SmallCost ;
 
     /* T => check that f_k+1 - f_k <= debugtol*C_k
        F => no checking of function values */
     int    debug ;
-    FLOAT debugtol ;
+    CG_FLOAT debugtol ;
 
     /* if step is nonzero, it is the initial step of the initial line search */
-    FLOAT step ;
+    CG_FLOAT step ;
 
     /* abort cg after maxit iterations */
     CG_INT maxit ;
@@ -283,15 +291,15 @@ typedef struct cg_parameter_struct /* user controlled parameters */
     int ntries ;
 
     /* maximum factor secant step increases stepsize in expansion phase */
-    FLOAT ExpandSafe ;
+    CG_FLOAT ExpandSafe ;
 
     /* factor by which secant step is amplified during expansion phase
        where minimizer is bracketed */
-    FLOAT SecantAmp ;
+    CG_FLOAT SecantAmp ;
 
     /* factor by which rho grows during expansion phase where minimizer is
        bracketed */
-    FLOAT RhoGrow ;
+    CG_FLOAT RhoGrow ;
 
     /* maximum number of times that eps is updated */
     int neps ;
@@ -303,49 +311,49 @@ typedef struct cg_parameter_struct /* user controlled parameters */
     int nline ;
 
     /* conjugate gradient method restarts after (n*restart_fac) iterations */
-    FLOAT restart_fac ;
+    CG_FLOAT restart_fac ;
 
     /* stop when -alpha*dphi0 (estimated change in function value) <= feps*|f|*/
-    FLOAT feps ;
+    CG_FLOAT feps ;
 
     /* after encountering nan, growth factor when searching for
        a bracketing interval */
-    FLOAT nan_rho ;
+    CG_FLOAT nan_rho ;
 
     /* after encountering nan, decay factor for stepsize */
-    FLOAT nan_decay ;
+    CG_FLOAT nan_decay ;
 
 /*============================================================================
        technical parameters which the user probably should not touch
   ----------------------------------------------------------------------------*/
-    FLOAT           delta ; /* Wolfe line search parameter */
-    FLOAT           sigma ; /* Wolfe line search parameter */
-    FLOAT           gamma ; /* decay factor for bracket interval width */
-    FLOAT             rho ; /* growth factor when searching for initial
+    CG_FLOAT           delta ; /* Wolfe line search parameter */
+    CG_FLOAT           sigma ; /* Wolfe line search parameter */
+    CG_FLOAT           gamma ; /* decay factor for bracket interval width */
+    CG_FLOAT             rho ; /* growth factor when searching for initial
                                 bracketing interval */
-    FLOAT            psi0 ; /* factor used in starting guess for iteration 1 */
-    FLOAT          psi_lo ; /* in performing a QuadStep, we evaluate at point
+    CG_FLOAT            psi0 ; /* factor used in starting guess for iteration 1 */
+    CG_FLOAT          psi_lo ; /* in performing a QuadStep, we evaluate at point
                                 betweeen [psi_lo, psi_hi]*psi2*previous step */
-    FLOAT          psi_hi ;
-    FLOAT            psi1 ; /* for approximate quadratic, use gradient at
+    CG_FLOAT          psi_hi ;
+    CG_FLOAT            psi1 ; /* for approximate quadratic, use gradient at
                                 psi1*psi2*previous step for initial stepsize */
-    FLOAT            psi2 ; /* when starting a new cg iteration, our initial
+    CG_FLOAT            psi2 ; /* when starting a new cg iteration, our initial
                                 guess for the line search stepsize is
                                 psi2*previous step */
     int       AdaptiveBeta ; /* T => choose beta adaptively, F => use theta */
-    FLOAT       BetaLower ; /* lower bound factor for beta */
-    FLOAT           theta ; /* parameter describing the cg_descent family */
-    FLOAT            qeps ; /* parameter in cost error for quadratic restart
+    CG_FLOAT       BetaLower ; /* lower bound factor for beta */
+    CG_FLOAT           theta ; /* parameter describing the cg_descent family */
+    CG_FLOAT            qeps ; /* parameter in cost error for quadratic restart
                                 criterion */
-    FLOAT           qrule ; /* parameter used to decide if cost is quadratic */
+    CG_FLOAT           qrule ; /* parameter used to decide if cost is quadratic */
     int           qrestart ; /* number of iterations the function should be
                                 nearly quadratic before a restart */
 } cg_parameter ;
 
 typedef struct cg_stats_struct /* statistics returned to user */
 {
-    FLOAT               f ; /*function value at solution */
-    FLOAT           gnorm ; /* max abs component of gradient */
+    CG_FLOAT               f ; /*function value at solution */
+    CG_FLOAT           gnorm ; /* max abs component of gradient */
     CG_INT               iter ; /* number of iterations */
     CG_INT            IterSub ; /* number of subspace iterations */
     CG_INT             NumSub ; /* total number subspaces */
@@ -374,17 +382,17 @@ CG_API int cg_descent /*  return:
                        9 (debugger is on and the function value increases)
                       10 (out of memory) */
 (
-    FLOAT            *x, /* input: starting guess, output: the solution */
+    CG_FLOAT            *x, /* input: starting guess, output: the solution */
     CG_INT                n, /* problem dimension */
     cg_stats      *Stats, /* structure with statistics */
     cg_parameter  *UParm, /* user parameters, NULL = use default parameters */
-    FLOAT      grad_tol, /* StopRule = 1: |g|_infty <= max (grad_tol,
+    CG_FLOAT      grad_tol, /* StopRule = 1: |g|_infty <= max (grad_tol,
                                            StopFac*initial |g|_infty) [default]
                              StopRule = 0: |g|_infty <= grad_tol(1+|f|) */
-    FLOAT        (*value) (FLOAT *, CG_INT CG_CUSTOM),  /* f = value (x, n) */
-    void           (*grad) (FLOAT *, FLOAT *, CG_INT CG_CUSTOM), /* grad (g, x, n) */
-    FLOAT      (*valgrad) (FLOAT *, FLOAT *, CG_INT CG_CUSTOM), /* f = valgrad (g,x,n)*/
-    FLOAT         *Work  /* either size 4n work array or NULL */
+    CG_FLOAT        (*value) (CG_FLOAT *, CG_INT CG_CUSTOM),  /* f = value (x, n) */
+    void           (*grad) (CG_FLOAT *, CG_FLOAT *, CG_INT CG_CUSTOM), /* grad (g, x, n) */
+    CG_FLOAT      (*valgrad) (CG_FLOAT *, CG_FLOAT *, CG_INT CG_CUSTOM), /* f = valgrad (g,x,n)*/
+    CG_FLOAT         *Work  /* either size 4n work array or NULL */
 		CG_CUSTOM
 ) ;
 
@@ -409,35 +417,35 @@ typedef struct cg_com_struct /* common variables */
     int       PertRule ; /* T => estimated error in function value is eps*Ck,
                             F => estimated error in function value is eps */
     int          QuadF ; /* T => function appears to be quadratic */
-    FLOAT   SmallCost ; /* |f| <= SmallCost => set PertRule = F */
-    FLOAT       alpha ; /* stepsize along search direction */
-    FLOAT           f ; /* function value for step alpha */
-    FLOAT          df ; /* function derivative for step alpha */
-    FLOAT       fpert ; /* perturbation is eps*|f| if PertRule is T */
-    FLOAT         eps ; /* current value of eps */
-    FLOAT         tol ; /* computing tolerance */
-    FLOAT          f0 ; /* old function value */
-    FLOAT         df0 ; /* old derivative */
-    FLOAT          Ck ; /* average cost as given by the rule:
+    CG_FLOAT   SmallCost ; /* |f| <= SmallCost => set PertRule = F */
+    CG_FLOAT       alpha ; /* stepsize along search direction */
+    CG_FLOAT           f ; /* function value for step alpha */
+    CG_FLOAT          df ; /* function derivative for step alpha */
+    CG_FLOAT       fpert ; /* perturbation is eps*|f| if PertRule is T */
+    CG_FLOAT         eps ; /* current value of eps */
+    CG_FLOAT         tol ; /* computing tolerance */
+    CG_FLOAT          f0 ; /* old function value */
+    CG_FLOAT         df0 ; /* old derivative */
+    CG_FLOAT          Ck ; /* average cost as given by the rule:
 i                            Qk = Qdecay*Qk + 1, Ck += (fabs (f) - Ck)/Qk */
-    FLOAT    wolfe_hi ; /* upper bound for slope in Wolfe test */
-    FLOAT    wolfe_lo ; /* lower bound for slope in Wolfe test */
-    FLOAT   awolfe_hi ; /* upper bound for slope, approximate Wolfe test */
+    CG_FLOAT    wolfe_hi ; /* upper bound for slope in Wolfe test */
+    CG_FLOAT    wolfe_lo ; /* lower bound for slope in Wolfe test */
+    CG_FLOAT   awolfe_hi ; /* upper bound for slope, approximate Wolfe test */
     int         AWolfe ; /* F (use Wolfe line search)
                                 T (use approximate Wolfe line search)
                                 do not change user's AWolfe, this value can be
                                 changed based on AWolfeFac */
     int          Wolfe ; /* T (means code reached the Wolfe part of cg_line */
-    FLOAT         rho ; /* either Parm->rho or Parm->nan_rho */
-    FLOAT    alphaold ; /* previous value for stepsize alpha */
-    FLOAT          *x ; /* current iterate */
-    FLOAT      *xtemp ; /* x + alpha*d */
-    FLOAT          *d ; /* current search direction */
-    FLOAT          *g ; /* gradient at x */
-    FLOAT      *gtemp ; /* gradient at x + alpha*d */
-    FLOAT   (*cg_value) (FLOAT *, CG_INT CG_CUSTOM) ; /* f = cg_value (x, n) */
-    void      (*cg_grad) (FLOAT *, FLOAT *, CG_INT CG_CUSTOM) ; /* cg_grad (g, x, n) */
-    FLOAT (*cg_valgrad) (FLOAT *, FLOAT *, CG_INT CG_CUSTOM) ; /* f = cg_valgrad (g,x,n)*/
+    CG_FLOAT         rho ; /* either Parm->rho or Parm->nan_rho */
+    CG_FLOAT    alphaold ; /* previous value for stepsize alpha */
+    CG_FLOAT          *x ; /* current iterate */
+    CG_FLOAT      *xtemp ; /* x + alpha*d */
+    CG_FLOAT          *d ; /* current search direction */
+    CG_FLOAT          *g ; /* gradient at x */
+    CG_FLOAT      *gtemp ; /* gradient at x + alpha*d */
+    CG_FLOAT   (*cg_value) (CG_FLOAT *, CG_INT CG_CUSTOM) ; /* f = cg_value (x, n) */
+    void      (*cg_grad) (CG_FLOAT *, CG_FLOAT *, CG_INT CG_CUSTOM) ; /* cg_grad (g, x, n) */
+    CG_FLOAT (*cg_valgrad) (CG_FLOAT *, CG_FLOAT *, CG_INT CG_CUSTOM) ; /* f = cg_valgrad (g,x,n)*/
     cg_parameter *Parm ; /* user parameters */
 		CG_CUSTOM_STRUCT
 } cg_com ;
@@ -450,15 +458,15 @@ i                            Qk = Qdecay*Qk + 1, Ck += (fabs (f) - Ck)/Qk */
 
 static int cg_Wolfe
 (
-    FLOAT   alpha, /* stepsize */
-    FLOAT       f, /* function value associated with stepsize alpha */
-    FLOAT    dphi, /* derivative value associated with stepsize alpha */
+    CG_FLOAT   alpha, /* stepsize */
+    CG_FLOAT       f, /* function value associated with stepsize alpha */
+    CG_FLOAT    dphi, /* derivative value associated with stepsize alpha */
     cg_com    *Com  /* cg com */
 ) ;
 
 static int cg_tol
 (
-    FLOAT     gnorm, /* gradient sup-norm */
+    CG_FLOAT     gnorm, /* gradient sup-norm */
     cg_com    *Com    /* cg com */
 ) ;
 
@@ -469,12 +477,12 @@ static int cg_line
 
 static int cg_contract
 (
-    FLOAT    *A, /* left side of bracketing interval */
-    FLOAT   *fA, /* function value at a */
-    FLOAT   *dA, /* derivative at a */
-    FLOAT    *B, /* right side of bracketing interval */
-    FLOAT   *fB, /* function value at b */
-    FLOAT   *dB, /* derivative at b */
+    CG_FLOAT    *A, /* left side of bracketing interval */
+    CG_FLOAT   *fA, /* function value at a */
+    CG_FLOAT   *dA, /* derivative at a */
+    CG_FLOAT    *B, /* right side of bracketing interval */
+    CG_FLOAT   *fB, /* function value at b */
+    CG_FLOAT   *dB, /* derivative at b */
     cg_com  *Com  /* cg com structure */
 ) ;
 
@@ -485,21 +493,21 @@ static int cg_evaluate
     cg_com   *Com
 ) ;
 
-static FLOAT cg_cubic
+static CG_FLOAT cg_cubic
 (
-    FLOAT  a,
-    FLOAT fa, /* function value at a */
-    FLOAT da, /* derivative at a */
-    FLOAT  b,
-    FLOAT fb, /* function value at b */
-    FLOAT db  /* derivative at b */
+    CG_FLOAT  a,
+    CG_FLOAT fa, /* function value at a */
+    CG_FLOAT da, /* derivative at a */
+    CG_FLOAT  b,
+    CG_FLOAT fb, /* function value at b */
+    CG_FLOAT db  /* derivative at b */
 ) ;
 
 static void cg_matvec
 (
-    FLOAT *y, /* product vector */
-    FLOAT *A, /* dense matrix */
-    FLOAT *x, /* input vector */
+    CG_FLOAT *y, /* product vector */
+    CG_FLOAT *A, /* dense matrix */
+    CG_FLOAT *x, /* input vector */
     int     n, /* number of columns of A */
     CG_INT     m, /* number of rows of A */
     int     w  /* T => y = A*x, F => y = A'*x */
@@ -507,144 +515,144 @@ static void cg_matvec
 
 static void cg_trisolve
 (
-    FLOAT *x, /* right side on input, solution on output */
-    FLOAT *R, /* dense matrix */
+    CG_FLOAT *x, /* right side on input, solution on output */
+    CG_FLOAT *R, /* dense matrix */
     int     m, /* leading dimension of R */
     int     n, /* dimension of triangular system */
     int     w  /* T => Rx = y, F => R'x = y */
 ) ;
 
-static FLOAT cg_inf
+static CG_FLOAT cg_inf
 (
-    FLOAT *x, /* vector */
+    CG_FLOAT *x, /* vector */
     CG_INT     n /* length of vector */
 ) ;
 
 static void cg_scale0
 (
-    FLOAT *y, /* output vector */
-    FLOAT *x, /* input vector */
-    FLOAT  s, /* scalar */
+    CG_FLOAT *y, /* output vector */
+    CG_FLOAT *x, /* input vector */
+    CG_FLOAT  s, /* scalar */
     int     n /* length of vector */
 ) ;
 
 static void cg_scale
 (
-    FLOAT *y, /* output vector */
-    FLOAT *x, /* input vector */
-    FLOAT  s, /* scalar */
+    CG_FLOAT *y, /* output vector */
+    CG_FLOAT *x, /* input vector */
+    CG_FLOAT  s, /* scalar */
     CG_INT     n /* length of vector */
 ) ;
 
 static void cg_daxpy0
 (
-    FLOAT     *x, /* input and output vector */
-    FLOAT     *d, /* direction */
-    FLOAT  alpha, /* stepsize */
+    CG_FLOAT     *x, /* input and output vector */
+    CG_FLOAT     *d, /* direction */
+    CG_FLOAT  alpha, /* stepsize */
     int         n  /* length of the vectors */
 ) ;
 
 static void cg_daxpy
 (
-    FLOAT     *x, /* input and output vector */
-    FLOAT     *d, /* direction */
-    FLOAT  alpha, /* stepsize */
+    CG_FLOAT     *x, /* input and output vector */
+    CG_FLOAT     *d, /* direction */
+    CG_FLOAT  alpha, /* stepsize */
     CG_INT         n  /* length of the vectors */
 ) ;
 
-static FLOAT cg_dot0
+static CG_FLOAT cg_dot0
 (
-    FLOAT *x, /* first vector */
-    FLOAT *y, /* second vector */
+    CG_FLOAT *x, /* first vector */
+    CG_FLOAT *y, /* second vector */
     int     n /* length of vectors */
 ) ;
 
-static FLOAT cg_dot
+static CG_FLOAT cg_dot
 (
-    FLOAT *x, /* first vector */
-    FLOAT *y, /* second vector */
+    CG_FLOAT *x, /* first vector */
+    CG_FLOAT *y, /* second vector */
     CG_INT     n /* length of vectors */
 ) ;
 
 static void cg_copy0
 (
-    FLOAT *y, /* output of copy */
-    FLOAT *x, /* input of copy */
+    CG_FLOAT *y, /* output of copy */
+    CG_FLOAT *x, /* input of copy */
     int     n  /* length of vectors */
 ) ;
 
 static void cg_copy
 (
-    FLOAT *y, /* output of copy */
-    FLOAT *x, /* input of copy */
+    CG_FLOAT *y, /* output of copy */
+    CG_FLOAT *x, /* input of copy */
     CG_INT     n  /* length of vectors */
 ) ;
 
 static void cg_step
 (
-    FLOAT *xtemp, /*output vector */
-    FLOAT     *x, /* initial vector */
-    FLOAT     *d, /* search direction */
-    FLOAT  alpha, /* stepsize */
+    CG_FLOAT *xtemp, /*output vector */
+    CG_FLOAT     *x, /* initial vector */
+    CG_FLOAT     *d, /* search direction */
+    CG_FLOAT  alpha, /* stepsize */
     CG_INT         n  /* length of the vectors */
 ) ;
 
 static void cg_init
 (
-    FLOAT *x, /* input and output vector */
-    FLOAT  s, /* scalar */
+    CG_FLOAT *x, /* input and output vector */
+    CG_FLOAT  s, /* scalar */
     CG_INT     n /* length of vector */
 ) ;
 
-static FLOAT cg_update_2
+static CG_FLOAT cg_update_2
 (
-    FLOAT *gold, /* old g */
-    FLOAT *gnew, /* new g */
-    FLOAT    *d, /* d */
+    CG_FLOAT *gold, /* old g */
+    CG_FLOAT *gnew, /* new g */
+    CG_FLOAT    *d, /* d */
     CG_INT        n /* length of vectors */
 ) ;
 
-static FLOAT cg_update_inf
+static CG_FLOAT cg_update_inf
 (
-    FLOAT *gold, /* old g */
-    FLOAT *gnew, /* new g */
-    FLOAT    *d, /* d */
+    CG_FLOAT *gold, /* old g */
+    CG_FLOAT *gnew, /* new g */
+    CG_FLOAT    *d, /* d */
     CG_INT        n /* length of vectors */
 ) ;
 
-static FLOAT cg_update_ykyk
+static CG_FLOAT cg_update_ykyk
 (
-    FLOAT *gold, /* old g */
-    FLOAT *gnew, /* new g */
-    FLOAT *Ykyk,
-    FLOAT *Ykgk,
+    CG_FLOAT *gold, /* old g */
+    CG_FLOAT *gnew, /* new g */
+    CG_FLOAT *Ykyk,
+    CG_FLOAT *Ykgk,
     CG_INT        n /* length of vectors */
 ) ;
 
-static FLOAT cg_update_inf2
+static CG_FLOAT cg_update_inf2
 (
-    FLOAT   *gold, /* old g */
-    FLOAT   *gnew, /* new g */
-    FLOAT      *d, /* d */
-    FLOAT *gnorm2, /* 2-norm of g */
+    CG_FLOAT   *gold, /* old g */
+    CG_FLOAT   *gnew, /* new g */
+    CG_FLOAT      *d, /* d */
+    CG_FLOAT *gnorm2, /* 2-norm of g */
     CG_INT          n /* length of vectors */
 ) ;
 
-static FLOAT cg_update_d
+static CG_FLOAT cg_update_d
 (
-    FLOAT      *d,
-    FLOAT      *g,
-    FLOAT    beta,
-    FLOAT *gnorm2, /* 2-norm of g */
+    CG_FLOAT      *d,
+    CG_FLOAT      *g,
+    CG_FLOAT    beta,
+    CG_FLOAT *gnorm2, /* 2-norm of g */
     CG_INT          n /* length of vectors */
 ) ;
 
 static void cg_Yk
 (
-    FLOAT    *y, /*output vector */
-    FLOAT *gold, /* initial vector */
-    FLOAT *gnew, /* search direction */
-    FLOAT  *yty, /* y'y */
+    CG_FLOAT    *y, /*output vector */
+    CG_FLOAT *gold, /* initial vector */
+    CG_FLOAT *gnew, /* search direction */
+    CG_FLOAT  *yty, /* y'y */
     CG_INT        n  /* length of the vectors */
 ) ;
 
@@ -666,29 +674,29 @@ static void cg_printParms
    using the BLAS. */
 
 
-void CG_DGEMV (char *trans, CG_BLAS_INT *m, CG_BLAS_INT *n, FLOAT *alpha, FLOAT *A,
-        CG_BLAS_INT *lda, FLOAT *X, CG_BLAS_INT *incx,
-        FLOAT *beta, FLOAT *Y, CG_BLAS_INT *incy) ;
+void CG_DGEMV (char *trans, CG_BLAS_INT *m, CG_BLAS_INT *n, CG_FLOAT *alpha, CG_FLOAT *A,
+        CG_BLAS_INT *lda, CG_FLOAT *X, CG_BLAS_INT *incx,
+        CG_FLOAT *beta, CG_FLOAT *Y, CG_BLAS_INT *incy) ;
 
-void CG_DTRSV (char *uplo, char *trans, char *diag, CG_BLAS_INT *n, FLOAT *A,
-        CG_BLAS_INT *lda, FLOAT *X, CG_BLAS_INT *incx) ;
+void CG_DTRSV (char *uplo, char *trans, char *diag, CG_BLAS_INT *n, CG_FLOAT *A,
+        CG_BLAS_INT *lda, CG_FLOAT *X, CG_BLAS_INT *incx) ;
 
-void CG_DAXPY (CG_BLAS_INT *n, FLOAT *DA, FLOAT *DX, CG_BLAS_INT *incx, FLOAT *DY,
+void CG_DAXPY (CG_BLAS_INT *n, CG_FLOAT *DA, CG_FLOAT *DX, CG_BLAS_INT *incx, CG_FLOAT *DY,
         CG_BLAS_INT *incy) ;
 
-FLOAT CG_DDOT (CG_BLAS_INT *n, FLOAT *DX, CG_BLAS_INT *incx, FLOAT *DY,
+CG_FLOAT CG_DDOT (CG_BLAS_INT *n, CG_FLOAT *DX, CG_BLAS_INT *incx, CG_FLOAT *DY,
         CG_BLAS_INT *incy) ;
 
-void CG_DSCAL (CG_BLAS_INT *n, FLOAT *DA, FLOAT *DX, CG_BLAS_INT *incx) ;
+void CG_DSCAL (CG_BLAS_INT *n, CG_FLOAT *DA, CG_FLOAT *DX, CG_BLAS_INT *incx) ;
 
-void CG_DCOPY (CG_BLAS_INT *n, FLOAT *DX, CG_BLAS_INT *incx, FLOAT *DY,
+void CG_DCOPY (CG_BLAS_INT *n, CG_FLOAT *DX, CG_BLAS_INT *incx, CG_FLOAT *DY,
         CG_BLAS_INT *incy) ;
 
-CG_BLAS_INT CG_IDACG_MAX (CG_BLAS_INT *n, FLOAT *DX, CG_BLAS_INT *incx) ;
+CG_BLAS_INT CG_IDACG_MAX (CG_BLAS_INT *n, CG_FLOAT *DX, CG_BLAS_INT *incx) ;
 
 
 /* begin external variables */
-FLOAT one [1], zero [1] ;
+CG_FLOAT one [1], zero [1] ;
 CG_BLAS_INT blas_one [1] ;
 /* end external variables */
 
@@ -708,18 +716,18 @@ int cg_descent /*  return status of solution process:
                       11 (function nan or +-INF and could not be repaired)
                       12 (invalid choice for memory parameter) */
 (
-    FLOAT            *x, /* input: starting guess, output: the solution */
+    CG_FLOAT            *x, /* input: starting guess, output: the solution */
 		CG_INT                n, /* problem dimension */
     cg_stats       *Stat, /* structure with statistics (can be NULL) */
     cg_parameter  *UParm, /* user parameters, NULL = use default parameters */
-    FLOAT      grad_tol, /* StopRule = 1: |g|_infty <= max (grad_tol,
+    CG_FLOAT      grad_tol, /* StopRule = 1: |g|_infty <= max (grad_tol,
                                            StopFac*initial |g|_infty) [default]
                              StopRule = 0: |g|_infty <= grad_tol(1+|f|) */
-    FLOAT      (*value) (FLOAT *, CG_INT CG_CUSTOM),  /* f = value (x, n) */
-    void         (*grad) (FLOAT *, FLOAT *, CG_INT CG_CUSTOM), /* grad (g, x, n) */
-    FLOAT    (*valgrad) (FLOAT *, FLOAT *, CG_INT CG_CUSTOM), /* f = valgrad (g, x, n),
+    CG_FLOAT      (*value) (CG_FLOAT *, CG_INT CG_CUSTOM),  /* f = value (x, n) */
+    void         (*grad) (CG_FLOAT *, CG_FLOAT *, CG_INT CG_CUSTOM), /* grad (g, x, n) */
+    CG_FLOAT    (*valgrad) (CG_FLOAT *, CG_FLOAT *, CG_INT CG_CUSTOM), /* f = valgrad (g, x, n),
                           NULL = compute value & gradient using value & grad */
-    FLOAT         *Work  /* NULL => let code allocate memory
+    CG_FLOAT         *Work  /* NULL => let code allocate memory
                              not NULL => use array Work for required memory
                              The amount of memory needed depends on the value
                              of the parameter memory in the Parm structure.
@@ -731,7 +739,7 @@ int cg_descent /*  return status of solution process:
 {
     CG_INT     i, iter, IterRestart, maxit = 0, nrestart, nrestartsub = 0 ;
     int     nslow, slowlimit, IterQuad, status, PrintLevel, QuadF ;
-    FLOAT  delta2, Qk, Ck, fbest, gbest,
+    CG_FLOAT  delta2, Qk, Ck, fbest, gbest,
             f, ftemp, gnorm, xnorm, gnorm2, dnorm2, denom,
             t, dphi, dphi0, alpha,
             ykyk, ykgk, dkyk, beta = 0, QuadTrust, tol,
@@ -744,7 +752,7 @@ int cg_descent /*  return status of solution process:
             IterSubRestart = 0, FirstFull, SubSkip, SubCheck = 0,
             StartSkip = 0, StartCheck, DenseCol1 = 0, NegDiag, memk_is_mem,
             d0isg = 0, qrestart ;
-    FLOAT  gHg, scale, gsubnorm2 = 0,  ratio, stgkeep = 0,
+    CG_FLOAT  gHg, scale, gsubnorm2 = 0,  ratio, stgkeep = 0,
             alphaold, zeta, yty, ytg, t1, t2, t3, t4,
            *Rk = NULL, *Re = NULL, *Sk = NULL, *SkF = NULL, *stemp = NULL,
            *Yk = NULL, *SkYk = NULL, *dsub = NULL, *gsub = NULL, *gsubtemp = NULL,
@@ -754,8 +762,8 @@ int cg_descent /*  return status of solution process:
     cg_com Com ;
 
     /* assign values to the external variables */
-    one [0] = (FLOAT) 1 ;
-    zero [0] = (FLOAT) 0 ;
+    one [0] = (CG_FLOAT) 1 ;
+    zero [0] = (CG_FLOAT) 0 ;
     blas_one [0] = (CG_BLAS_INT) 1 ;
 
     /* initialize the parameters */
@@ -792,16 +800,16 @@ int cg_descent /*  return status of solution process:
     {
         if ( mem == 0 ) /* original CG_DESCENT without memory */
         {
-            work = (FLOAT *) malloc (4*n*sizeof (FLOAT)) ;
+            work = (CG_FLOAT *) malloc (4*n*sizeof (CG_FLOAT)) ;
         }
         else if ( Parm->LBFGS || (mem >= n) ) /* use L-BFGS */
         {
-            work = (FLOAT *) malloc ((2*mem*(n+1)+4*n)*sizeof (FLOAT)) ;
+            work = (CG_FLOAT *) malloc ((2*mem*(n+1)+4*n)*sizeof (CG_FLOAT)) ;
         }
         else /* limited memory CG_DESCENT */
         {
             i = (mem+6)*n + (3*mem+9)*mem + 5 ;
-            work = (FLOAT *) malloc (i*sizeof (FLOAT)) ;
+            work = (CG_FLOAT *) malloc (i*sizeof (CG_FLOAT)) ;
         }
     }
     else work = Work ;
@@ -830,7 +838,7 @@ int cg_descent /*  return status of solution process:
     memk = 0 ;         /* number of vectors in current memory */
 
     /* the conjugate gradient algorithm is restarted every nrestart iteration */
-    nrestart = (CG_INT) (((FLOAT) n)*Parm->restart_fac) ;
+    nrestart = (CG_INT) (((CG_FLOAT) n)*Parm->restart_fac) ;
 
     /* allocate storage connected with limited memory CG */
     if ( mem > 0 )
@@ -949,7 +957,7 @@ int cg_descent /*  return status of solution process:
     NumSub =  0 ;        /* total number of subspaces */
     IterQuad = 0 ;       /* counts number of iterations that function change
                             is close to that of a quadratic */
-    scale = (FLOAT) 1 ; /* scale is the initial approximation to inverse
+    scale = (CG_FLOAT) 1 ; /* scale is the initial approximation to inverse
                             Hessian in LBFGS; after the initial iteration,
                             scale is estimated by the BB formula */
 
@@ -1564,7 +1572,7 @@ int cg_descent /*  return status of solution process:
                     SubSkip = 0 ;
                     IterSubRestart = 0 ;
                     nsub = memk ; /* dimension of subspace */
-                    nrestartsub = (int) (((FLOAT) nsub)*Parm->restart_fac) ;
+                    nrestartsub = (int) (((CG_FLOAT) nsub)*Parm->restart_fac) ;
                     mp_begin = mlast ;
                     memk_begin = nsub ;
                     SkFlast = (SkFstart+nsub-1) % mem ;
@@ -1600,7 +1608,7 @@ int cg_descent /*  return status of solution process:
                 IterQuad = 0 ;
                 mlast = -1 ;
                 memk = 0 ;
-                scale = (FLOAT) 1 ;
+                scale = (CG_FLOAT) 1 ;
 
                 /* copy xtemp to x */
                 cg_copy (x, xtemp, n) ;
@@ -1678,7 +1686,7 @@ int cg_descent /*  return status of solution process:
 
             if ( Restart ) /*restart in subspace*/
             {
-                scale = (FLOAT) 1 ;
+                scale = (CG_FLOAT) 1 ;
                 Restart = 0 ;
                 IterRestart = 0 ;
                 IterSubRestart = 0 ;
@@ -2154,7 +2162,7 @@ Exit:
         {
             printf ("Number of iterations exceed specified limit\n") ;
             printf ("Iterations: %10.0f maxit: %10.0f\n",
-                    (FLOAT) iter, (FLOAT) maxit) ;
+                    (CG_FLOAT) iter, (CG_FLOAT) maxit) ;
             printf ("%s\n", mess1) ;
             printf ("%s %e\n\n", mess2, grad_tol) ;
         }
@@ -2201,7 +2209,7 @@ Exit:
         else if ( status == 10 )
         {
             printf ("Insufficient memory for specified problem dimension %e"
-                    " in cg_descent\n", (FLOAT) n) ;
+                    " in cg_descent\n", (CG_FLOAT) n) ;
         }
         else if ( status == 11 )
         {
@@ -2216,13 +2224,13 @@ Exit:
 
         printf ("maximum norm for gradient: %13.6e\n", gnorm) ;
         printf ("function value:            %13.6e\n\n", f) ;
-        printf ("iterations:              %10.0f\n", (FLOAT) iter) ;
-        printf ("function evaluations:    %10.0f\n", (FLOAT) Com.nf) ;
-        printf ("gradient evaluations:    %10.0f\n", (FLOAT) Com.ng) ;
+        printf ("iterations:              %10.0f\n", (CG_FLOAT) iter) ;
+        printf ("function evaluations:    %10.0f\n", (CG_FLOAT) Com.nf) ;
+        printf ("gradient evaluations:    %10.0f\n", (CG_FLOAT) Com.ng) ;
         if ( IterSub > 0 )
         {
-            printf ("subspace iterations:     %10.0f\n", (FLOAT) IterSub) ;
-            printf ("number of subspaces:     %10.0f\n", (FLOAT) NumSub) ;
+            printf ("subspace iterations:     %10.0f\n", (CG_FLOAT) IterSub) ;
+            printf ("number of subspaces:     %10.0f\n", (CG_FLOAT) NumSub) ;
         }
         printf ("===================================\n\n") ;
     }
@@ -2237,9 +2245,9 @@ Exit:
    ========================================================================= */
 static int cg_Wolfe
 (
-    FLOAT   alpha, /* stepsize */
-    FLOAT       f, /* function value associated with stepsize alpha */
-    FLOAT    dphi, /* derivative value associated with stepsize alpha */
+    CG_FLOAT   alpha, /* stepsize */
+    CG_FLOAT       f, /* function value associated with stepsize alpha */
+    CG_FLOAT    dphi, /* derivative value associated with stepsize alpha */
     cg_com    *Com  /* cg com */
 )
 {
@@ -2294,7 +2302,7 @@ static int cg_Wolfe
    ========================================================================= */
 static int cg_tol
 (
-    FLOAT     gnorm, /* gradient sup-norm */
+    CG_FLOAT     gnorm, /* gradient sup-norm */
     cg_com    *Com    /* cg com */
 )
 {
@@ -2326,7 +2334,7 @@ static int cg_line
 )
 {
     int AWolfe, iter, ngrow, PrintLevel, qb, qb0, status, toggle ;
-    FLOAT alpha, a, a1, a2, b, bmin, B, da, db, d0, d1, d2, dB, df, f, fa, fb,
+    CG_FLOAT alpha, a, a1, a2, b, bmin, B, da, db, d0, d1, d2, dB, df, f, fa, fb,
            fB, a0, b0, da0, db0, fa0, fb0, width, rho ;
     char *s1, *s2, *fmt1, *fmt2 ;
     cg_parameter *Parm ;
@@ -2688,17 +2696,17 @@ Line:
    ========================================================================= */
 static int cg_contract
 (
-    FLOAT    *A, /* left side of bracketing interval */
-    FLOAT   *fA, /* function value at a */
-    FLOAT   *dA, /* derivative at a */
-    FLOAT    *B, /* right side of bracketing interval */
-    FLOAT   *fB, /* function value at b */
-    FLOAT   *dB, /* derivative at b */
+    CG_FLOAT    *A, /* left side of bracketing interval */
+    CG_FLOAT   *fA, /* function value at a */
+    CG_FLOAT   *dA, /* derivative at a */
+    CG_FLOAT    *B, /* right side of bracketing interval */
+    CG_FLOAT   *fB, /* function value at b */
+    CG_FLOAT   *dB, /* derivative at b */
     cg_com  *Com  /* cg com structure */
 )
 {
     int AWolfe, iter, PrintLevel, toggle, status ;
-    FLOAT a, alpha, b, old, da, db, df, dold, f, fa, fb, f1, fold,
+    CG_FLOAT a, alpha, b, old, da, db, df, dold, f, fa, fb, f1, fold,
            t, width ;
     char *s ;
     cg_parameter *Parm ;
@@ -2848,7 +2856,7 @@ static int cg_evaluate
 {
     CG_INT n ;
     int i ;
-    FLOAT alpha, *d, *gtemp, *x, *xtemp ;
+    CG_FLOAT alpha, *d, *gtemp, *x, *xtemp ;
     cg_parameter *Parm ;
     Parm = Com->Parm ;
     n = Com->n ;
@@ -3042,17 +3050,17 @@ static int cg_evaluate
    Compute the minimizer of a Hermite cubic. If the computed minimizer
    outside [a, b], return -1 (it is assumed that a >= 0).
    ========================================================================= */
-static FLOAT cg_cubic
+static CG_FLOAT cg_cubic
 (
-    FLOAT  a,
-    FLOAT fa, /* function value at a */
-    FLOAT da, /* derivative at a */
-    FLOAT  b,
-    FLOAT fb, /* function value at b */
-    FLOAT db  /* derivative at b */
+    CG_FLOAT  a,
+    CG_FLOAT fa, /* function value at a */
+    CG_FLOAT da, /* derivative at a */
+    CG_FLOAT  b,
+    CG_FLOAT fb, /* function value at b */
+    CG_FLOAT db  /* derivative at b */
 )
 {
-    FLOAT c, d1, d2, delta, t, v, w ;
+    CG_FLOAT c, d1, d2, delta, t, v, w ;
     delta = b - a ;
     if ( delta == 0 ) return (a) ;
     v = da + db - 3.*(fb-fa)/delta ;
@@ -3086,9 +3094,9 @@ static FLOAT cg_cubic
    ========================================================================= */
 static void cg_matvec
 (
-    FLOAT *y, /* product vector */
-    FLOAT *A, /* dense matrix */
-    FLOAT *x, /* input vector */
+    CG_FLOAT *y, /* product vector */
+    CG_FLOAT *A, /* dense matrix */
+    CG_FLOAT *x, /* input vector */
     int     n, /* number of columns of A */
     CG_INT     m, /* number of rows of A */
     int     w  /* T => y = A*x, F => y = A'*x */
@@ -3162,8 +3170,8 @@ static void cg_matvec
    ========================================================================= */
 static void cg_trisolve
 (
-    FLOAT *x, /* right side on input, solution on output */
-    FLOAT *R, /* dense matrix */
+    CG_FLOAT *x, /* right side on input, solution on output */
+    CG_FLOAT *R, /* dense matrix */
     int     m, /* leading dimension of R */
     int     n, /* dimension of triangular system */
     int     w  /* T => Rx = y, F => R'x = y */
@@ -3207,15 +3215,15 @@ static void cg_trisolve
    =========================================================================
    Compute infinity norm of vector
    ========================================================================= */
-static FLOAT cg_inf
+static CG_FLOAT cg_inf
 (
-    FLOAT *x, /* vector */
+    CG_FLOAT *x, /* vector */
     CG_INT     n /* length of vector */
 )
 {
 #ifdef CG_NOBLAS
     CG_INT i, n5 ;
-    FLOAT t ;
+    CG_FLOAT t ;
     t = 0 ;
     n5 = n % 5 ;
 
@@ -3233,7 +3241,7 @@ static FLOAT cg_inf
 
 #ifndef CG_NOBLAS
     CG_INT i, n5 ;
-    FLOAT t ;
+    CG_FLOAT t ;
     CG_BLAS_INT N ;
     if ( n < CG_IDACG_MAX_START )
     {
@@ -3267,9 +3275,9 @@ static FLOAT cg_inf
    ========================================================================= */
 static void cg_scale0
 (
-    FLOAT *y, /* output vector */
-    FLOAT *x, /* input vector */
-    FLOAT  s, /* scalar */
+    CG_FLOAT *y, /* output vector */
+    CG_FLOAT *x, /* input vector */
+    CG_FLOAT  s, /* scalar */
     int     n /* length of vector */
 )
 {
@@ -3319,9 +3327,9 @@ static void cg_scale0
    ========================================================================= */
 static void cg_scale
 (
-    FLOAT *y, /* output vector */
-    FLOAT *x, /* input vector */
-    FLOAT  s, /* scalar */
+    CG_FLOAT *y, /* output vector */
+    CG_FLOAT *x, /* input vector */
+    CG_FLOAT  s, /* scalar */
     CG_INT     n /* length of vector */
 )
 {
@@ -3398,9 +3406,9 @@ static void cg_scale
    ========================================================================= */
 static void cg_daxpy0
 (
-    FLOAT     *x, /* input and output vector */
-    FLOAT     *d, /* direction */
-    FLOAT  alpha, /* stepsize */
+    CG_FLOAT     *x, /* input and output vector */
+    CG_FLOAT     *d, /* direction */
+    CG_FLOAT  alpha, /* stepsize */
     int         n  /* length of the vectors */
 )
 {
@@ -3440,9 +3448,9 @@ static void cg_daxpy0
    ========================================================================= */
 static void cg_daxpy
 (
-    FLOAT     *x, /* input and output vector */
-    FLOAT     *d, /* direction */
-    FLOAT  alpha, /* stepsize */
+    CG_FLOAT     *x, /* input and output vector */
+    CG_FLOAT     *d, /* direction */
+    CG_FLOAT  alpha, /* stepsize */
     CG_INT         n  /* length of the vectors */
 )
 {
@@ -3521,15 +3529,15 @@ static void cg_daxpy
    =========================================================================
    Compute dot product of x and y, vectors of length n
    ========================================================================= */
-static FLOAT cg_dot0
+static CG_FLOAT cg_dot0
 (
-    FLOAT *x, /* first vector */
-    FLOAT *y, /* second vector */
+    CG_FLOAT *x, /* first vector */
+    CG_FLOAT *y, /* second vector */
     int     n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
-    FLOAT t ;
+    CG_FLOAT t ;
     t = 0 ;
     if ( n <= 0 ) return (t) ;
     n5 = n % 5 ;
@@ -3547,16 +3555,16 @@ static FLOAT cg_dot0
    =========================================================================
    Compute dot product of x and y, vectors of length n
    ========================================================================= */
-static FLOAT cg_dot
+static CG_FLOAT cg_dot
 (
-    FLOAT *x, /* first vector */
-    FLOAT *y, /* second vector */
+    CG_FLOAT *x, /* first vector */
+    CG_FLOAT *y, /* second vector */
     CG_INT     n /* length of vectors */
 )
 {
 #ifdef CG_NOBLAS
     CG_INT i, n5 ;
-    FLOAT t ;
+    CG_FLOAT t ;
     t = 0 ;
     if ( n <= 0 ) return (t) ;
     n5 = n % 5 ;
@@ -3571,7 +3579,7 @@ static FLOAT cg_dot
 
 #ifndef CG_NOBLAS
     CG_INT i, n5 ;
-    FLOAT t ;
+    CG_FLOAT t ;
     CG_BLAS_INT N ;
     if ( n < CG_DDOT_START )
     {
@@ -3601,8 +3609,8 @@ static FLOAT cg_dot
    ========================================================================= */
 static void cg_copy0
 (
-    FLOAT *y, /* output of copy */
-    FLOAT *x, /* input of copy */
+    CG_FLOAT *y, /* output of copy */
+    CG_FLOAT *x, /* input of copy */
     int     n  /* length of vectors */
 )
 {
@@ -3632,8 +3640,8 @@ static void cg_copy0
    ========================================================================= */
 static void cg_copy
 (
-    FLOAT *y, /* output of copy */
-    FLOAT *x, /* input of copy */
+    CG_FLOAT *y, /* output of copy */
+    CG_FLOAT *x, /* input of copy */
     CG_INT     n  /* length of vectors */
 )
 {
@@ -3698,10 +3706,10 @@ static void cg_copy
    ========================================================================= */
 static void cg_step
 (
-    FLOAT *xtemp, /*output vector */
-    FLOAT     *x, /* initial vector */
-    FLOAT     *d, /* search direction */
-    FLOAT  alpha, /* stepsize */
+    CG_FLOAT *xtemp, /*output vector */
+    CG_FLOAT     *x, /* initial vector */
+    CG_FLOAT     *d, /* search direction */
+    CG_FLOAT  alpha, /* stepsize */
     CG_INT         n  /* length of the vectors */
 )
 {
@@ -3741,8 +3749,8 @@ static void cg_step
    ========================================================================= */
 static void cg_init
 (
-    FLOAT *x, /* input and output vector */
-    FLOAT  s, /* scalar */
+    CG_FLOAT *x, /* input and output vector */
+    CG_FLOAT  s, /* scalar */
     CG_INT     n /* length of vector */
 )
 {
@@ -3771,16 +3779,16 @@ static void cg_init
    Set gold = gnew (if not equal), compute 2-norm^2 of gnew, and optionally
       set d = -gnew
    ========================================================================= */
-static FLOAT cg_update_2
+static CG_FLOAT cg_update_2
 (
-    FLOAT *gold, /* old g */
-    FLOAT *gnew, /* new g */
-    FLOAT    *d, /* d */
+    CG_FLOAT *gold, /* old g */
+    CG_FLOAT *gnew, /* new g */
+    CG_FLOAT    *d, /* d */
     CG_INT        n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
-    FLOAT s, t ;
+    CG_FLOAT s, t ;
     t = 0 ;
     n5 = n % 5 ;
 
@@ -3906,16 +3914,16 @@ static FLOAT cg_update_2
    =========================================================================
    Set gold = gnew, compute inf-norm of gnew, and optionally set d = -gnew
    ========================================================================= */
-static FLOAT cg_update_inf
+static CG_FLOAT cg_update_inf
 (
-    FLOAT *gold, /* old g */
-    FLOAT *gnew, /* new g */
-    FLOAT    *d, /* d */
+    CG_FLOAT *gold, /* old g */
+    CG_FLOAT *gnew, /* new g */
+    CG_FLOAT    *d, /* d */
     CG_INT        n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
-    FLOAT s, t ;
+    CG_FLOAT s, t ;
     t = 0 ;
     n5 = n % 5 ;
 
@@ -4006,17 +4014,17 @@ static FLOAT cg_update_inf
                             ykyk = 2-norm(gnew-gold)^2
                             ykgk = (gnew-gold) dot gnew
    ========================================================================= */
-static FLOAT cg_update_ykyk
+static CG_FLOAT cg_update_ykyk
 (
-    FLOAT *gold, /* old g */
-    FLOAT *gnew, /* new g */
-    FLOAT *Ykyk,
-    FLOAT *Ykgk,
+    CG_FLOAT *gold, /* old g */
+    CG_FLOAT *gnew, /* new g */
+    CG_FLOAT *Ykyk,
+    CG_FLOAT *Ykgk,
     CG_INT        n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
-    FLOAT t, gnorm, yk, ykyk, ykgk ;
+    CG_FLOAT t, gnorm, yk, ykyk, ykgk ;
     gnorm = 0 ;
     ykyk = 0 ;
     ykgk = 0 ;
@@ -4083,17 +4091,17 @@ static FLOAT cg_update_ykyk
    =========================================================================
    Set gold = gnew, compute inf-norm of gnew & 2-norm of gnew, set d = -gnew
    ========================================================================= */
-static FLOAT cg_update_inf2
+static CG_FLOAT cg_update_inf2
 (
-    FLOAT   *gold, /* old g */
-    FLOAT   *gnew, /* new g */
-    FLOAT      *d, /* d */
-    FLOAT *gnorm2, /* 2-norm of g */
+    CG_FLOAT   *gold, /* old g */
+    CG_FLOAT   *gnew, /* new g */
+    CG_FLOAT      *d, /* d */
+    CG_FLOAT *gnorm2, /* 2-norm of g */
     CG_INT          n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
-    FLOAT gnorm, s, t ;
+    CG_FLOAT gnorm, s, t ;
     gnorm = 0 ;
     s = 0 ;
     n5 = n % 5 ;
@@ -4152,17 +4160,17 @@ static FLOAT cg_update_inf2
    =========================================================================
    Set d = -g + beta*d, compute 2-norm of d, and optionally the 2-norm of g
    ========================================================================= */
-static FLOAT cg_update_d
+static CG_FLOAT cg_update_d
 (
-    FLOAT      *d,
-    FLOAT      *g,
-    FLOAT    beta,
-    FLOAT *gnorm2, /* 2-norm of g */
+    CG_FLOAT      *d,
+    CG_FLOAT      *g,
+    CG_FLOAT    beta,
+    CG_FLOAT *gnorm2, /* 2-norm of g */
     CG_INT          n /* length of vectors */
 )
 {
     CG_INT i, n5 ;
-    FLOAT dnorm2, s, t ;
+    CG_FLOAT dnorm2, s, t ;
     s = 0 ;
     dnorm2 = 0 ;
     n5 = n % 5 ;
@@ -4269,15 +4277,15 @@ static FLOAT cg_update_d
    ========================================================================= */
 static void cg_Yk
 (
-    FLOAT    *y, /*output vector */
-    FLOAT *gold, /* initial vector */
-    FLOAT *gnew, /* search direction */
-    FLOAT  *yty, /* y'y */
+    CG_FLOAT    *y, /*output vector */
+    CG_FLOAT *gold, /* initial vector */
+    CG_FLOAT *gnew, /* search direction */
+    CG_FLOAT  *yty, /* y'y */
     CG_INT        n  /* length of the vectors */
 )
 {
     CG_INT n5, i ;
-    FLOAT s, t ;
+    CG_FLOAT s, t ;
     n5 = n % 5 ;
     if ( (y != NULL) && (yty == NULL) )
     {
