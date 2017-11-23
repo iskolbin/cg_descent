@@ -102,6 +102,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #ifndef CG_STATIC
 #define CG_API static
@@ -735,9 +736,9 @@ int cg_descent /*  return status of solution process:
 )
 {
     size_t i, iter, IterRestart, maxit = 0, nrestart, nrestartsub = 0, qrestart, IterQuad,
-			IterSub, IterSubRestart, mem, memk, memsq, memk_begin, nslow, slowlimit,
-			l1, l2, j, k, mlast, mlast_sub, nsub, SkFstart = 0, SkFlast = 0,Subspace, NumSub,
-			SubSkip, SubCheck = 0, mp, mp_begin = 0, mpp, spp, spp1 ;
+      IterSub, IterSubRestart = 0, mem, memk = 0, memsq = 0, memk_begin = 0, nslow,
+      slowlimit, l1, l2, j, k, mlast, mlast_sub, nsub, SkFstart = 0, SkFlast = 0,
+      Subspace, NumSub, SubSkip, SubCheck = 0, mp, mp_begin = 0, mpp, spp, spp1 ;
     int status, PrintLevel, QuadF, UseMemory, Restart, LBFGS, InvariantSpace, FirstFull, 
       StartSkip = 0, StartCheck, DenseCol1 = 0, NegDiag, memk_is_mem, d0isg = 0 ;
     CG_FLOAT delta2, Qk, Ck, fbest, gbest,
