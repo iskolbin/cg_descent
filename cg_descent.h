@@ -349,7 +349,7 @@ typedef struct cg_parameter_struct /* user controlled parameters */
 
 typedef struct cg_stats_struct /* statistics returned to user */
 {
-    CG_FLOAT               f ; /*function value at solution */
+    CG_FLOAT               f ; /* function value at solution */
     CG_FLOAT           gnorm ; /* max abs component of gradient */
     size_t              iter ; /* number of iterations */
     size_t           IterSub ; /* number of subspace iterations */
