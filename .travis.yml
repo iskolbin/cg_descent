@@ -1,0 +1,12 @@
+language: c
+sudo: false
+
+notifications:
+  email: false
+
+script:
+  - cc test/driver1.c -lm -Wall -Wextra -pedantic && ./a.out
+  - cc test/driver2.c -lm -Wall -Wextra -pedantic && ./a.out
+  - cc test/driver3.c -lm -Wall -Wextra -pedantic && ./a.out
+  - cc test/driver4.c -lm -Wall -Wextra -pedantic && ./a.out
+  - cc test/driver5.c -lm -Wall -Wextra -pedantic && ./a.out
