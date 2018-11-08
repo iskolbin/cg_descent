@@ -4,7 +4,7 @@
 CG_DESCENT
 ==========
 
-Single header of `CG_DESCENT` unconstrained non-linear optimization algorithm
+Single header library containing `CG_DESCENT` unconstrained non-linear optimization algorithm
 by William W. Hager and Hongchao Zhang with some minor tweaks. Code is taken
 from [authors site](http://users.clas.ufl.edu/hager/papers/CG/Archive/CG_DESCENT-C-6.8.tar.gz).
 The code is released under GPL v2 license.
