@@ -2,7 +2,7 @@
 #define CG_DESCENT_H_
 
 /*
-  cg_descent.h - v6.8.6 - unconstrained nonlinear optimization single header lib
+  cg_descent.h - v6.8.7 - unconstrained nonlinear optimization single header lib
 
   author: Ilya Kolbin (iskolbin@gmail.com)
   url: github.com/iskolbin/cg_descent
@@ -99,8 +99,17 @@ SIAM Journal on Optimization, 23 (2013), 2150-2168. */
 #include <math.h>
 #include <float.h>
 #include <limits.h>
+
+#ifndef CG_NO_STDLIB
 #include <stdlib.h>
+#define CG_MALLOC malloc
+#define CG_FREE free
+#endif
+
+#ifndef CG_NO_STDIO
 #include <stdio.h>
+#define CG_PRINTF printf
+#endif
 
 #ifdef CG_STATIC
 #define CG_API static
@@ -837,16 +846,16 @@ int cg_descent /*  return status of solution process:
 	{
 		if ( mem == 0 ) /* original CG_DESCENT without memory */
 		{
-			work = (CG_FLOAT *) malloc (4*n*sizeof (double)) ;
+			work = (CG_FLOAT *) CG_MALLOC (4*n*sizeof (double)) ;
 		}
 		else if ( Parm->LBFGS || (mem >= n) ) /* use L-BFGS */
 		{
-			work = (CG_FLOAT *) malloc ((2*mem*(n+1)+4*n)*sizeof (double)) ;
+			work = (CG_FLOAT *) CG_MALLOC ((2*mem*(n+1)+4*n)*sizeof (double)) ;
 		}
 		else /* limited memory CG_DESCENT */
 		{
 			i = (mem+6)*n + (3*mem+9)*mem + 5 ;
-			work = (CG_FLOAT *) malloc (i*sizeof (double)) ;
+			work = (CG_FLOAT *) CG_MALLOC (i*sizeof (double)) ;
 		}
 	}
 	else work = Work ;
@@ -936,7 +945,7 @@ int cg_descent /*  return status of solution process:
 	f = Com.f ;
 	if ( status )
 	{
-		if ( PrintLevel > 0 ) printf ("Function undefined at starting point\n");
+		if ( PrintLevel > 0 ) CG_PRINTF ("Function undefined at starting point\n");
 		goto Exit ;
 	}
 
@@ -962,7 +971,7 @@ int cg_descent /*  return status of solution process:
 
 	if ( PrintLevel >= 1 )
 	{
-		printf ("iter: %5i f: %13.6e gnorm: %13.6e memk: %i\n",
+		CG_PRINTF ("iter: %5i f: %13.6e gnorm: %13.6e memk: %i\n",
 				(int) 0, f, gnorm, memk) ;
 	}
 
@@ -1069,18 +1078,18 @@ int cg_descent /*  return status of solution process:
 				{
 					if ( denom <= 0 )
 					{
-						printf ("Quad step fails (denom = %14.6e)\n", denom);
+						CG_PRINTF ("Quad step fails (denom = %14.6e)\n", denom);
 					}
 					else if ( Com.QuadOK )
 					{
-						printf ("Quad step %14.6e OK\n", alpha);
+						CG_PRINTF ("Quad step %14.6e OK\n", alpha);
 					}
-					else printf ("Quad step %14.6e done, but not OK\n", alpha) ;
+					else CG_PRINTF ("Quad step %14.6e done, but not OK\n", alpha) ;
 				}
 			}
 			else if ( PrintLevel >= 1 )
 			{
-				printf ("No quad step (chg: %14.6e, cut: %10.2e)\n",
+				CG_PRINTF ("No quad step (chg: %14.6e, cut: %10.2e)\n",
 						t, Parm->QuadCutOff) ;
 			}
 		}
@@ -1108,7 +1117,7 @@ int cg_descent /*  return status of solution process:
 		{
 			if ( PrintLevel >= 1 )
 			{
-				printf ("\nWOLFE LINE SEARCH FAILS\n") ;
+				CG_PRINTF ("\nWOLFE LINE SEARCH FAILS\n") ;
 			}
 			if ( status != 3 )
 			{
@@ -1163,7 +1172,7 @@ int cg_descent /*  return status of solution process:
 					else                SubSkip *= 2 ;
 					if ( PrintLevel >= 1 )
 					{
-						printf ("skip subspace %i iterations\n", SubSkip) ;
+						CG_PRINTF ("skip subspace %i iterations\n", SubSkip) ;
 					}
 				}
 			}
@@ -1215,7 +1224,7 @@ int cg_descent /*  return status of solution process:
 				{
 					if ( PrintLevel >= 1 )
 					{
-						printf ("iter: %i exit subspace\n", (int) iter) ;
+						CG_PRINTF ("iter: %i exit subspace\n", (int) iter) ;
 					}
 					FirstFull = CG_TRUE ; /* first iteration in full space */
 					Subspace = CG_FALSE ; /* leave the subspace */
@@ -1579,12 +1588,12 @@ int cg_descent /*  return status of solution process:
 					{
 						if ( InvariantSpace )
 						{
-							printf ("iter: %i invariant space, "
+							CG_PRINTF ("iter: %i invariant space, "
 									"enter subspace\n", (int) iter) ;
 						}
 						else
 						{
-							printf ("iter: %i enter subspace\n", (int) iter) ;
+							CG_PRINTF ("iter: %i enter subspace\n", (int) iter) ;
 						}
 					}
 					/* if the first column is dense, we need to correct it
@@ -1732,7 +1741,7 @@ int cg_descent /*  return status of solution process:
 				memk_begin = 0 ;
 				memk = 0 ;
 
-				if ( PrintLevel >= 1 ) printf ("RESTART Sub-CG\n") ;
+				if ( PrintLevel >= 1 ) CG_PRINTF ("RESTART Sub-CG\n") ;
 
 				/* search direction d = -Zk gsub, gsub = Zk' g, dsub = -gsub
 					 => d =  Zk dsub = SkF (Rk)^{-1} dsub */
@@ -1871,7 +1880,7 @@ int cg_descent /*  return status of solution process:
 				Restart = CG_FALSE ;
 				IterRestart = 0 ;
 				IterQuad = 0 ;
-				if ( PrintLevel >= 1 ) printf ("RESTART CG\n") ;
+				if ( PrintLevel >= 1 ) CG_PRINTF ("RESTART CG\n") ;
 
 				/* set x = xtemp */
 				cg_copy (x, xtemp, n) ;
@@ -1947,8 +1956,8 @@ int cg_descent /*  return status of solution process:
 					for (i = 0; i < n; i++)  t = t + d [i]*g [i] ;
 					if ( fabs(t-dphi0) > Parm->debugtol*fabs(dphi0) )
 					{
-						printf("Warning, dphi0 != d'g!\n");
-						printf("dphi0:%13.6e, d'g:%13.6e\n",dphi0, t) ;
+						CG_PRINTF("Warning, dphi0 != d'g!\n");
+						CG_PRINTF("dphi0:%13.6e, d'g:%13.6e\n",dphi0, t) ;
 					}
 				}
 			}
@@ -2120,7 +2129,7 @@ int cg_descent /*  return status of solution process:
 
 		if ( PrintLevel >= 1 )
 		{
-			printf ("\niter: %5i f = %13.6e gnorm = %13.6e memk: %i "
+			CG_PRINTF ("\niter: %5i f = %13.6e gnorm = %13.6e memk: %i "
 					"Subspace: %i\n", (int) iter, f, gnorm, memk, Subspace) ;
 		}
 
@@ -2179,99 +2188,99 @@ Exit:
 		const char mess4 [] = "   - your gradient routine has an error" ;
 		const char mess5 [] = "   - the parameter epsilon is too small" ;
 
-		printf ("\nTermination status: %i\n", status) ;
+		CG_PRINTF ("\nTermination status: %i\n", status) ;
 
 		if ( status && NegDiag )
 		{
-			printf ("Parameter eta2 may be too small\n") ;
+			CG_PRINTF ("Parameter eta2 may be too small\n") ;
 		}
 
 		if ( status == 0 )
 		{
-			printf ("Convergence tolerance for gradient satisfied\n\n") ;
+			CG_PRINTF ("Convergence tolerance for gradient satisfied\n\n") ;
 		}
 		else if ( status == 1 )
 		{
-			printf ("Terminating since change in function value "
+			CG_PRINTF ("Terminating since change in function value "
 					"<= feps*|f|\n\n") ;
 		}
 		else if ( status == 2 )
 		{
-			printf ("Number of iterations exceed specified limit\n") ;
-			printf ("Iterations: %10.0f maxit: %10.0f\n",
+			CG_PRINTF ("Number of iterations exceed specified limit\n") ;
+			CG_PRINTF ("Iterations: %10.0f maxit: %10.0f\n",
 					(double) iter, (double) maxit) ;
-			printf ("%s\n", mess1) ;
-			printf ("%s %e\n\n", mess2, grad_tol) ;
+			CG_PRINTF ("%s\n", mess1) ;
+			CG_PRINTF ("%s %e\n\n", mess2, grad_tol) ;
 		}
 		else if ( status == 3 )
 		{
-			printf ("Slope always negative in line search\n") ;
-			printf ("%s\n", mess1) ;
-			printf ("   - your cost function has an error\n") ;
-			printf ("%s\n\n", mess4) ;
+			CG_PRINTF ("Slope always negative in line search\n") ;
+			CG_PRINTF ("%s\n", mess1) ;
+			CG_PRINTF ("   - your cost function has an error\n") ;
+			CG_PRINTF ("%s\n\n", mess4) ;
 		}
 		else if ( status == 4 )
 		{
-			printf ("Line search fails, too many iterations\n") ;
-			printf ("%s\n", mess1) ;
-			printf ("%s %e\n\n", mess2, grad_tol) ;
+			CG_PRINTF ("Line search fails, too many iterations\n") ;
+			CG_PRINTF ("%s\n", mess1) ;
+			CG_PRINTF ("%s %e\n\n", mess2, grad_tol) ;
 		}
 		else if ( status == 5 )
 		{
-			printf ("Search direction not a descent direction\n\n") ;
+			CG_PRINTF ("Search direction not a descent direction\n\n") ;
 		}
 		else if ( status == 6 ) /* line search fails, excessive eps updating */
 		{
-			printf ("%s due to excessive updating of eps\n", mess3) ;
-			printf ("%s\n", mess1) ;
-			printf ("%s %e\n", mess2, grad_tol) ;
-			printf ("%s\n\n", mess4) ;
+			CG_PRINTF ("%s due to excessive updating of eps\n", mess3) ;
+			CG_PRINTF ("%s\n", mess1) ;
+			CG_PRINTF ("%s %e\n", mess2, grad_tol) ;
+			CG_PRINTF ("%s\n\n", mess4) ;
 		}
 		else if ( status == 7 ) /* line search fails */
 		{
-			printf ("%s\n%s\n", mess3, mess1) ;
-			printf ("%s %e\n", mess2, grad_tol) ;
-			printf ("%s\n%s\n\n", mess4, mess5) ;
+			CG_PRINTF ("%s\n%s\n", mess3, mess1) ;
+			CG_PRINTF ("%s %e\n", mess2, grad_tol) ;
+			CG_PRINTF ("%s\n%s\n\n", mess4, mess5) ;
 		}
 		else if ( status == 8 )
 		{
-			printf ("Debugger is on, function value does not improve\n") ;
-			printf ("new value: %25.16e old value: %25.16e\n\n", f, Com.f0) ;
+			CG_PRINTF ("Debugger is on, function value does not improve\n") ;
+			CG_PRINTF ("new value: %25.16e old value: %25.16e\n\n", f, Com.f0) ;
 		}
 		else if ( status == 9 )
 		{
-			printf ("%i iterations without strict improvement in cost "
+			CG_PRINTF ("%i iterations without strict improvement in cost "
 					"or gradient\n\n", nslow) ;
 		}
 		else if ( status == 10 )
 		{
-			printf ("Insufficient memory for specified problem dimension %e"
+			CG_PRINTF ("Insufficient memory for specified problem dimension %e"
 					" in cg_descent\n", (double) n) ;
 		}
 		else if ( status == 11 )
 		{
-			printf ("Function nan and could not be repaired\n\n") ;
+			CG_PRINTF ("Function nan and could not be repaired\n\n") ;
 		}
 		else if ( status == 12 )
 		{
-			printf ("memory = %i is an invalid choice for parameter memory\n",
+			CG_PRINTF ("memory = %i is an invalid choice for parameter memory\n",
 					Parm->memory) ;
-			printf ("memory should be either 0 or greater than 2\n\n") ;
+			CG_PRINTF ("memory should be either 0 or greater than 2\n\n") ;
 		}
 
-		printf ("maximum norm for gradient: %13.6e\n", gnorm) ;
-		printf ("function value:            %13.6e\n\n", f) ;
-		printf ("iterations:              %10.0f\n", (double) iter) ;
-		printf ("function evaluations:    %10.0f\n", (double) Com.nf) ;
-		printf ("gradient evaluations:    %10.0f\n", (double) Com.ng) ;
+		CG_PRINTF ("maximum norm for gradient: %13.6e\n", gnorm) ;
+		CG_PRINTF ("function value:            %13.6e\n\n", f) ;
+		CG_PRINTF ("iterations:              %10.0f\n", (double) iter) ;
+		CG_PRINTF ("function evaluations:    %10.0f\n", (double) Com.nf) ;
+		CG_PRINTF ("gradient evaluations:    %10.0f\n", (double) Com.ng) ;
 		if ( IterSub > 0 )
 		{
-			printf ("subspace iterations:     %10.0f\n", (double) IterSub) ;
-			printf ("number of subspaces:     %10.0f\n", (double) NumSub) ;
+			CG_PRINTF ("subspace iterations:     %10.0f\n", (double) IterSub) ;
+			CG_PRINTF ("number of subspaces:     %10.0f\n", (double) NumSub) ;
 		}
-		printf ("===================================\n\n") ;
+		CG_PRINTF ("===================================\n\n") ;
 	}
-	if ( Work == NULL ) free (work) ;
+	if ( Work == NULL ) CG_FREE (work) ;
 	return (status) ;
 }
 
@@ -2295,8 +2304,8 @@ static int cg_Wolfe
 		{
 			if ( Com->Parm->PrintLevel >= 2 )
 			{
-				printf ("Wolfe conditions hold\n") ;
-				/*              printf ("wolfe f: %25.15e f0: %25.15e df: %25.15e\n",
+				CG_PRINTF ("Wolfe conditions hold\n") ;
+				/*              CG_PRINTF ("wolfe f: %25.15e f0: %25.15e df: %25.15e\n",
 												f, Com->f0, dphi) ;*/
 			}
 			return (1) ;
@@ -2306,19 +2315,19 @@ static int cg_Wolfe
 		{
 			/*          if ( Com->Parm->PrintLevel >= 2 )
 									{
-									printf ("f:    %e fpert:    %e ", f, Com->fpert) ;
-									if ( f > Com->fpert ) printf ("(fail)\n") ;
-									else                  printf ("(OK)\n") ;
-									printf ("dphi: %e hi bound: %e ", dphi, Com->awolfe_hi) ;
-									if ( dphi > Com->awolfe_hi ) printf ("(fail)\n") ;
-									else                         printf ("(OK)\n") ;
+									CG_PRINTF ("f:    %e fpert:    %e ", f, Com->fpert) ;
+									if ( f > Com->fpert ) CG_PRINTF ("(fail)\n") ;
+									else                  CG_PRINTF ("(OK)\n") ;
+									CG_PRINTF ("dphi: %e hi bound: %e ", dphi, Com->awolfe_hi) ;
+									if ( dphi > Com->awolfe_hi ) CG_PRINTF ("(fail)\n") ;
+									else                         CG_PRINTF ("(OK)\n") ;
 									}*/
 			if ( (f <= Com->fpert) && (dphi <= Com->awolfe_hi) )
 			{
 				if ( Com->Parm->PrintLevel >= 2 )
 				{
-					printf ("Approximate Wolfe conditions hold\n") ;
-					/*                  printf ("f: %25.15e fpert: %25.15e dphi: %25.15e awolf_hi: "
+					CG_PRINTF ("Approximate Wolfe conditions hold\n") ;
+					/*                  CG_PRINTF ("f: %25.15e fpert: %25.15e dphi: %25.15e awolf_hi: "
 															"%25.15e\n", f, Com->fpert, dphi, Com->awolfe_hi) ;*/
 				}
 				return (1) ;
@@ -2327,7 +2336,7 @@ static int cg_Wolfe
 	}
 	/*  else if ( Com->Parm->PrintLevel >= 2 )
 			{
-			printf ("dphi: %e lo bound: %e (fail)\n", dphi, Com->wolfe_lo) ;
+			CG_PRINTF ("dphi: %e lo bound: %e (fail)\n", dphi, Com->wolfe_lo) ;
 			}*/
 	return (0) ;
 }
@@ -2383,13 +2392,13 @@ static int cg_line
 	{
 		if ( AWolfe )
 		{
-			printf ("Approximate Wolfe line search\n") ;
-			printf ("=============================\n") ;
+			CG_PRINTF ("Approximate Wolfe line search\n") ;
+			CG_PRINTF ("=============================\n") ;
 		}
 		else
 		{
-			printf ("Wolfe line search\n") ;
-			printf ("=================\n") ;
+			CG_PRINTF ("Wolfe line search\n") ;
+			CG_PRINTF ("=================\n") ;
 		}
 	}
 
@@ -2431,8 +2440,8 @@ static int cg_line
 			"da: %13.6e db: %13.6e\n" ;
 		if ( Com->QuadOK ) s2 = "OK" ;
 		else               s2 = "" ;
-		if ( qb ) printf (fmt1, "start    ", s2, a, b, fa, fb, da, db);
-		else      printf (fmt2, "start    ", s2, a, b, fa, da, db) ;
+		if ( qb ) CG_PRINTF (fmt1, "start    ", s2, a, b, fa, fb, da, db);
+		else      CG_PRINTF (fmt2, "start    ", s2, a, b, fa, da, db) ;
 	}
 
 	/* if a quadratic interpolation step performed, check Wolfe conditions */
@@ -2520,7 +2529,7 @@ static int cg_line
 		{
 			if ( Com->QuadOK ) s2 = "OK" ;
 			else               s2 = "" ;
-			printf (fmt2, "expand   ", s2, a, b, fa, da, db) ;
+			CG_PRINTF (fmt2, "expand   ", s2, a, b, fa, da, db) ;
 		}
 	}
 
@@ -2658,7 +2667,7 @@ Line:
 			{
 				if ( PrintLevel >= 2 )
 				{
-					printf ("             a: %13.6e f: %13.6e df: %13.6e %1s\n",
+					CG_PRINTF ("             a: %13.6e f: %13.6e df: %13.6e %1s\n",
 							alpha, f, df, s1) ;
 				}
 				return (0) ;
@@ -2709,8 +2718,8 @@ Line:
 		{
 			if ( Com->QuadOK ) s2 = "OK" ;
 			else               s2 = "" ;
-			if ( !qb ) printf (fmt2, s1, s2, a, b, fa, da, db) ;
-			else       printf (fmt1, s1, s2, a, b, fa, fb, da, db) ;
+			if ( !qb ) CG_PRINTF (fmt2, s1, s2, a, b, fa, da, db) ;
+			else       CG_PRINTF (fmt1, s1, s2, a, b, fa, fb, da, db) ;
 		}
 	}
 	return (4) ;
@@ -2843,7 +2852,7 @@ static int cg_contract
 		{
 			if ( Com->QuadOK ) s = "OK" ;
 			else               s = "" ;
-			printf ("contract  %2s a: %13.6e b: %13.6e fa: %13.6e fb: "
+			CG_PRINTF ("contract  %2s a: %13.6e b: %13.6e fa: %13.6e fb: "
 					"%13.6e da: %13.6e db: %13.6e\n", s, a, b, fa, fb, da, db) ;
 		}
 	}
@@ -2869,7 +2878,7 @@ static int cg_contract
 	}
 	if ( PrintLevel >= 1 )
 	{
-		printf ("--increase eps: %e fpert: %e\n", Com->eps, Com->fpert) ;
+		CG_PRINTF ("--increase eps: %e fpert: %e\n", Com->eps, Com->fpert) ;
 	}
 	Com->neps++ ;
 	return (-1) ;
@@ -4652,137 +4661,137 @@ static void cg_printParms
  cg_parameter  *Parm
 )
 {
-	printf ("PARAMETERS:\n") ;
-	printf ("\n") ;
-	printf ("Wolfe line search parameter ..................... delta: %e\n",
+	CG_PRINTF ("PARAMETERS:\n") ;
+	CG_PRINTF ("\n") ;
+	CG_PRINTF ("Wolfe line search parameter ..................... delta: %e\n",
 			Parm->delta) ;
-	printf ("Wolfe line search parameter ..................... sigma: %e\n",
+	CG_PRINTF ("Wolfe line search parameter ..................... sigma: %e\n",
 			Parm->sigma) ;
-	printf ("decay factor for bracketing interval ............ gamma: %e\n",
+	CG_PRINTF ("decay factor for bracketing interval ............ gamma: %e\n",
 			Parm->gamma) ;
-	printf ("growth factor for bracket interval ................ rho: %e\n",
+	CG_PRINTF ("growth factor for bracket interval ................ rho: %e\n",
 			Parm->rho) ;
-	printf ("growth factor for bracket interval after nan .. nan_rho: %e\n",
+	CG_PRINTF ("growth factor for bracket interval after nan .. nan_rho: %e\n",
 			Parm->nan_rho) ;
-	printf ("decay factor for stepsize after nan ......... nan_decay: %e\n",
+	CG_PRINTF ("decay factor for stepsize after nan ......... nan_decay: %e\n",
 			Parm->nan_decay) ;
-	printf ("parameter in lower bound for beta ........... BetaLower: %e\n",
+	CG_PRINTF ("parameter in lower bound for beta ........... BetaLower: %e\n",
 			Parm->BetaLower) ;
-	printf ("parameter describing cg_descent family .......... theta: %e\n",
+	CG_PRINTF ("parameter describing cg_descent family .......... theta: %e\n",
 			Parm->theta) ;
-	printf ("perturbation parameter for function value ......... eps: %e\n",
+	CG_PRINTF ("perturbation parameter for function value ......... eps: %e\n",
 			Parm->eps) ;
-	printf ("factor by which eps grows if necessary .......... egrow: %e\n",
+	CG_PRINTF ("factor by which eps grows if necessary .......... egrow: %e\n",
 			Parm->egrow) ;
-	printf ("factor for computing average cost .............. Qdecay: %e\n",
+	CG_PRINTF ("factor for computing average cost .............. Qdecay: %e\n",
 			Parm->Qdecay) ;
-	printf ("relative change in cost to stop quadstep ... QuadCutOff: %e\n",
+	CG_PRINTF ("relative change in cost to stop quadstep ... QuadCutOff: %e\n",
 			Parm->QuadCutOff) ;
-	printf ("maximum factor quadstep reduces stepsize ..... QuadSafe: %e\n",
+	CG_PRINTF ("maximum factor quadstep reduces stepsize ..... QuadSafe: %e\n",
 			Parm->QuadSafe) ;
-	printf ("skip quadstep if |f| <= SmallCost*start cost  SmallCost: %e\n",
+	CG_PRINTF ("skip quadstep if |f| <= SmallCost*start cost  SmallCost: %e\n",
 			Parm->SmallCost) ;
-	printf ("relative change in cost to stop cubic step  CubicCutOff: %e\n",
+	CG_PRINTF ("relative change in cost to stop cubic step  CubicCutOff: %e\n",
 			Parm->CubicCutOff) ;
-	printf ("terminate if no improvement over nslow iter ..... nslow: %i\n",
+	CG_PRINTF ("terminate if no improvement over nslow iter ..... nslow: %i\n",
 			Parm->nslow) ;
-	printf ("factor multiplying gradient in stop condition . StopFac: %e\n",
+	CG_PRINTF ("factor multiplying gradient in stop condition . StopFac: %e\n",
 			Parm->StopFac) ;
-	printf ("cost change factor, approx Wolfe transition . AWolfeFac: %e\n",
+	CG_PRINTF ("cost change factor, approx Wolfe transition . AWolfeFac: %e\n",
 			Parm->AWolfeFac) ;
-	printf ("restart cg every restart_fac*n iterations . restart_fac: %e\n",
+	CG_PRINTF ("restart cg every restart_fac*n iterations . restart_fac: %e\n",
 			Parm->restart_fac) ;
-	printf ("cost error in quadratic restart is qeps*cost ..... qeps: %e\n",
+	CG_PRINTF ("cost error in quadratic restart is qeps*cost ..... qeps: %e\n",
 			Parm->qeps) ;
-	printf ("number of quadratic iterations before restart  qrestart: %i\n",
+	CG_PRINTF ("number of quadratic iterations before restart  qrestart: %i\n",
 			Parm->qrestart) ;
-	printf ("parameter used to decide if cost is quadratic ... qrule: %e\n",
+	CG_PRINTF ("parameter used to decide if cost is quadratic ... qrule: %e\n",
 			Parm->qrule) ;
-	printf ("stop when cost change <= feps*|f| ................ feps: %e\n",
+	CG_PRINTF ("stop when cost change <= feps*|f| ................ feps: %e\n",
 			Parm->feps) ;
-	printf ("starting guess parameter in first iteration ...... psi0: %e\n",
+	CG_PRINTF ("starting guess parameter in first iteration ...... psi0: %e\n",
 			Parm->psi0) ;
-	printf ("starting step in first iteration if nonzero ...... step: %e\n",
+	CG_PRINTF ("starting step in first iteration if nonzero ...... step: %e\n",
 			Parm->step) ;
-	printf ("lower bound factor in quad step ................ psi_lo: %e\n",
+	CG_PRINTF ("lower bound factor in quad step ................ psi_lo: %e\n",
 			Parm->psi_lo) ;
-	printf ("upper bound factor in quad step ................ psi_hi: %e\n",
+	CG_PRINTF ("upper bound factor in quad step ................ psi_hi: %e\n",
 			Parm->psi_hi) ;
-	printf ("initial guess factor for quadratic functions ..... psi1: %e\n",
+	CG_PRINTF ("initial guess factor for quadratic functions ..... psi1: %e\n",
 			Parm->psi1) ;
-	printf ("initial guess factor for general iteration ....... psi2: %e\n",
+	CG_PRINTF ("initial guess factor for general iteration ....... psi2: %e\n",
 			Parm->psi2) ;
-	printf ("max iterations .................................. maxit: %i\n",
+	CG_PRINTF ("max iterations .................................. maxit: %i\n",
 			(int) Parm->maxit) ;
-	printf ("max number of contracts in the line search .... nshrink: %i\n",
+	CG_PRINTF ("max number of contracts in the line search .... nshrink: %i\n",
 			Parm->nshrink) ;
-	printf ("max expansions in line search .................. ntries: %i\n",
+	CG_PRINTF ("max expansions in line search .................. ntries: %i\n",
 			Parm->ntries) ;
-	printf ("maximum growth of secant step in expansion . ExpandSafe: %e\n",
+	CG_PRINTF ("maximum growth of secant step in expansion . ExpandSafe: %e\n",
 			Parm->ExpandSafe) ;
-	printf ("growth factor for secant step during expand . SecantAmp: %e\n",
+	CG_PRINTF ("growth factor for secant step during expand . SecantAmp: %e\n",
 			Parm->SecantAmp) ;
-	printf ("growth factor for rho during expansion phase .. RhoGrow: %e\n",
+	CG_PRINTF ("growth factor for rho during expansion phase .. RhoGrow: %e\n",
 			Parm->RhoGrow) ;
-	printf ("distance threshhold for entering subspace ........ eta0: %e\n",
+	CG_PRINTF ("distance threshhold for entering subspace ........ eta0: %e\n",
 			Parm->eta0) ;
-	printf ("distance threshhold for leaving subspace ......... eta1: %e\n",
+	CG_PRINTF ("distance threshhold for leaving subspace ......... eta1: %e\n",
 			Parm->eta1) ;
-	printf ("distance threshhold for invariant space .......... eta2: %e\n",
+	CG_PRINTF ("distance threshhold for invariant space .......... eta2: %e\n",
 			Parm->eta2) ;
-	printf ("number of vectors stored in memory ............. memory: %i\n",
+	CG_PRINTF ("number of vectors stored in memory ............. memory: %i\n",
 			Parm->memory) ;
-	printf ("check subspace condition mem*SubCheck its .... SubCheck: %i\n",
+	CG_PRINTF ("check subspace condition mem*SubCheck its .... SubCheck: %i\n",
 			Parm->SubCheck) ;
-	printf ("skip subspace checking for mem*SubSkip its .... SubSkip: %i\n",
+	CG_PRINTF ("skip subspace checking for mem*SubSkip its .... SubSkip: %i\n",
 			Parm->SubSkip) ;
-	printf ("max number of times that eps is updated .......... neps: %i\n",
+	CG_PRINTF ("max number of times that eps is updated .......... neps: %i\n",
 			Parm->neps) ;
-	printf ("max number of iterations in line search ......... nline: %i\n",
+	CG_PRINTF ("max number of iterations in line search ......... nline: %i\n",
 			Parm->nline) ;
-	printf ("print level (0 = none, 3 = maximum) ........ PrintLevel: %i\n",
+	CG_PRINTF ("print level (0 = none, 3 = maximum) ........ PrintLevel: %i\n",
 			Parm->PrintLevel) ;
-	printf ("Logical parameters:\n") ;
+	CG_PRINTF ("Logical parameters:\n") ;
 	if ( Parm->PertRule )
-		printf ("    Error estimate for function value is eps*Ck\n") ;
+		CG_PRINTF ("    Error estimate for function value is eps*Ck\n") ;
 	else
-		printf ("    Error estimate for function value is eps\n") ;
+		CG_PRINTF ("    Error estimate for function value is eps\n") ;
 	if ( Parm->QuadStep )
-		printf ("    Use quadratic interpolation step\n") ;
+		CG_PRINTF ("    Use quadratic interpolation step\n") ;
 	else
-		printf ("    No quadratic interpolation step\n") ;
+		CG_PRINTF ("    No quadratic interpolation step\n") ;
 	if ( Parm->UseCubic)
-		printf ("    Use cubic interpolation step when possible\n") ;
+		CG_PRINTF ("    Use cubic interpolation step when possible\n") ;
 	else
-		printf ("    Avoid cubic interpolation steps\n") ;
+		CG_PRINTF ("    Avoid cubic interpolation steps\n") ;
 	if ( Parm->AdaptiveBeta )
-		printf ("    Adaptively adjust direction update parameter beta\n") ;
+		CG_PRINTF ("    Adaptively adjust direction update parameter beta\n") ;
 	else
-		printf ("    Use fixed parameter theta in direction update\n") ;
+		CG_PRINTF ("    Use fixed parameter theta in direction update\n") ;
 	if ( Parm->PrintFinal )
-		printf ("    Print final cost and statistics\n") ;
+		CG_PRINTF ("    Print final cost and statistics\n") ;
 	else
-		printf ("    Do not print final cost and statistics\n") ;
+		CG_PRINTF ("    Do not print final cost and statistics\n") ;
 	if ( Parm->PrintParms )
-		printf ("    Print the parameter structure\n") ;
+		CG_PRINTF ("    Print the parameter structure\n") ;
 	else
-		printf ("    Do not print parameter structure\n") ;
+		CG_PRINTF ("    Do not print parameter structure\n") ;
 	if ( Parm->AWolfe)
-		printf ("    Approximate Wolfe line search\n") ;
+		CG_PRINTF ("    Approximate Wolfe line search\n") ;
 	else
-		printf ("    Wolfe line search") ;
+		CG_PRINTF ("    Wolfe line search") ;
 	if ( Parm->AWolfeFac > 0. )
-		printf (" ... switching to approximate Wolfe\n") ;
+		CG_PRINTF (" ... switching to approximate Wolfe\n") ;
 	else
-		printf ("\n") ;
+		CG_PRINTF ("\n") ;
 	if ( Parm->StopRule )
-		printf ("    Stopping condition uses initial grad tolerance\n") ;
+		CG_PRINTF ("    Stopping condition uses initial grad tolerance\n") ;
 	else
-		printf ("    Stopping condition weighted by absolute cost\n") ;
+		CG_PRINTF ("    Stopping condition weighted by absolute cost\n") ;
 	if ( Parm->debug)
-		printf ("    Check for decay of cost, debugger is on\n") ;
+		CG_PRINTF ("    Check for decay of cost, debugger is on\n") ;
 	else
-		printf ("    Do not check for decay of cost, debugger is off\n") ;
+		CG_PRINTF ("    Do not check for decay of cost, debugger is off\n") ;
 }
 
 /*
