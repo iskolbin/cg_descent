@@ -2,7 +2,7 @@
 #define CG_DESCENT_H_
 
 /*
-  cg_descent.h - v6.8.5 - unconstrained nonlinear optimization single header lib
+  cg_descent.h - v6.8.6 - unconstrained nonlinear optimization single header lib
 
   author: Ilya Kolbin (iskolbin@gmail.com)
   url: github.com/iskolbin/cg_descent
@@ -101,9 +101,8 @@ SIAM Journal on Optimization, 23 (2013), 2150-2168. */
 #include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
-#ifndef CG_STATIC
+#ifdef CG_STATIC
 #define CG_API static
 #else
 #define CG_API extern
@@ -130,8 +129,8 @@ SIAM Journal on Optimization, 23 (2013), 2150-2168. */
 #define CG_MIN(a,b) (((a) < (b)) ? (a) : (b))
 
 typedef enum {
-	CG_FALSE = 0,
-	CG_TRUE  = 1
+  CG_FALSE = 0,
+  CG_TRUE  = 1
 } cg_bool;
 
 #ifndef NULL
@@ -457,9 +456,9 @@ CG_API void cg_default /* set default parameter values */
 typedef struct cg_com_struct /* common variables */
 {
 	/* parameters computed by the code */
-	CG_INT              n ; /* problem dimension, saved for reference */
-	CG_INT             nf ; /* number of function evaluations */
-	CG_INT             ng ; /* number of gradient evaluations */
+	CG_INT           n ; /* problem dimension, saved for reference */
+	CG_INT          nf ; /* number of function evaluations */
+	CG_INT          ng ; /* number of gradient evaluations */
 	int         QuadOK ; /* T (quadratic step successful) */
 	int       UseCubic ; /* T (use cubic step) F (use secant step) */
 	int           neps ; /* number of time eps updated */
@@ -511,18 +510,18 @@ static int cg_Wolfe
  CG_FLOAT       f, /* function value associated with stepsize alpha */
  CG_FLOAT    dphi, /* derivative value associated with stepsize alpha */
  cg_com    *Com  /* cg com */
- ) ;
+) ;
 
 static int cg_tol
 (
  CG_FLOAT     gnorm, /* gradient sup-norm */
  cg_com    *Com    /* cg com */
- ) ;
+) ;
 
 static int cg_line
 (
  cg_com   *Com  /* cg com structure */
- ) ;
+) ;
 
 static int cg_contract
 (
@@ -532,15 +531,27 @@ static int cg_contract
  CG_FLOAT    *B, /* right side of bracketing interval */
  CG_FLOAT   *fB, /* function value at b */
  CG_FLOAT   *dB, /* derivative at b */
- cg_com  *Com  /* cg com structure */
- ) ;
+ cg_com    *Com  /* cg com structure */
+) ;
+
+typedef enum {
+  CG_EVALUATE_WHAT_F  = 0,
+  CG_EVALUATE_WHAT_G  = 1,
+  CG_EVALUATE_WHAT_FG = 2
+} cg_evaluate_what ;
+
+typedef enum {
+  CG_EVALUATE_NAN_Y = 0,
+  CG_EVALUATE_NAN_N = 1,
+  CG_EVALUATE_NAN_P = 2
+} cg_evaluate_nan ;
 
 static int cg_evaluate
 (
- char    *what, /* fg = evaluate func and grad, g = grad only,f = func only*/
- char     *nan, /* y means check function/derivative values for nan */
- cg_com   *Com
- ) ;
+ cg_evaluate_what what, /* fg = evaluate func and grad, g = grad only,f = func only*/
+ cg_evaluate_nan   nan, /* y means check function/derivative values for nan */
+ cg_com           *Com
+) ;
 
 static CG_FLOAT cg_cubic
 (
@@ -550,17 +561,17 @@ static CG_FLOAT cg_cubic
  CG_FLOAT  b,
  CG_FLOAT fb, /* function value at b */
  CG_FLOAT db  /* derivative at b */
- ) ;
+) ;
 
 static void cg_matvec
 (
  CG_FLOAT *y, /* product vector */
  CG_FLOAT *A, /* dense matrix */
  CG_FLOAT *x, /* input vector */
- int     n, /* number of columns of A */
- CG_INT     m, /* number of rows of A */
- int     w  /* T => y = A*x, F => y = A'*x */
- ) ;
+ int       n, /* number of columns of A */
+ CG_INT    m, /* number of rows of A */
+ int       w  /* T => y = A*x, F => y = A'*x */
+) ;
 
 static void cg_trisolve
 (
@@ -582,60 +593,60 @@ static void cg_scale0
  CG_FLOAT *y, /* output vector */
  CG_FLOAT *x, /* input vector */
  CG_FLOAT  s, /* scalar */
- int     n /* length of vector */
- ) ;
+ int       n /* length of vector */
+) ;
 
 static void cg_scale
 (
  CG_FLOAT *y, /* output vector */
  CG_FLOAT *x, /* input vector */
  CG_FLOAT  s, /* scalar */
- CG_INT     n /* length of vector */
- ) ;
+ CG_INT    n  /* length of vector */
+) ;
 
 static void cg_daxpy0
 (
  CG_FLOAT     *x, /* input and output vector */
  CG_FLOAT     *d, /* direction */
  CG_FLOAT  alpha, /* stepsize */
- int         n  /* length of the vectors */
- ) ;
+ int           n  /* length of the vectors */
+) ;
 
 static void cg_daxpy
 (
  CG_FLOAT     *x, /* input and output vector */
  CG_FLOAT     *d, /* direction */
  CG_FLOAT  alpha, /* stepsize */
- CG_INT         n  /* length of the vectors */
- ) ;
+ CG_INT        n  /* length of the vectors */
+) ;
 
 static CG_FLOAT cg_dot0
 (
  CG_FLOAT *x, /* first vector */
  CG_FLOAT *y, /* second vector */
- int     n /* length of vectors */
- ) ;
+ int       n /* length of vectors */
+) ;
 
 static CG_FLOAT cg_dot
 (
  CG_FLOAT *x, /* first vector */
  CG_FLOAT *y, /* second vector */
- CG_INT     n /* length of vectors */
- ) ;
+ CG_INT    n  /* length of vectors */
+) ;
 
 static void cg_copy0
 (
  CG_FLOAT *y, /* output of copy */
  CG_FLOAT *x, /* input of copy */
- int     n  /* length of vectors */
- ) ;
+ int       n  /* length of vectors */
+) ;
 
 static void cg_copy
 (
  CG_FLOAT *y, /* output of copy */
  CG_FLOAT *x, /* input of copy */
- CG_INT     n  /* length of vectors */
- ) ;
+ CG_INT    n  /* length of vectors */
+) ;
 
 static void cg_step
 (
@@ -643,31 +654,31 @@ static void cg_step
  CG_FLOAT     *x, /* initial vector */
  CG_FLOAT     *d, /* search direction */
  CG_FLOAT  alpha, /* stepsize */
- CG_INT         n  /* length of the vectors */
- ) ;
+ CG_INT        n  /* length of the vectors */
+) ;
 
 static void cg_init
 (
  CG_FLOAT *x, /* input and output vector */
  CG_FLOAT  s, /* scalar */
- CG_INT     n /* length of vector */
- ) ;
+ CG_INT    n /* length of vector */
+) ;
 
 static CG_FLOAT cg_update_2
 (
  CG_FLOAT *gold, /* old g */
  CG_FLOAT *gnew, /* new g */
  CG_FLOAT    *d, /* d */
- CG_INT        n /* length of vectors */
- ) ;
+ CG_INT       n /* length of vectors */
+) ;
 
 static CG_FLOAT cg_update_inf
 (
  CG_FLOAT *gold, /* old g */
  CG_FLOAT *gnew, /* new g */
  CG_FLOAT    *d, /* d */
- CG_INT        n /* length of vectors */
- ) ;
+ CG_INT       n /* length of vectors */
+) ;
 
 static CG_FLOAT cg_update_ykyk
 (
@@ -676,7 +687,7 @@ static CG_FLOAT cg_update_ykyk
  CG_FLOAT *Ykyk,
  CG_FLOAT *Ykgk,
  CG_INT        n /* length of vectors */
- ) ;
+) ;
 
 static CG_FLOAT cg_update_inf2
 (
@@ -685,7 +696,7 @@ static CG_FLOAT cg_update_inf2
  CG_FLOAT      *d, /* d */
  CG_FLOAT *gnorm2, /* 2-norm of g */
  CG_INT          n /* length of vectors */
- ) ;
+) ;
 
 static CG_FLOAT cg_update_d
 (
@@ -694,7 +705,7 @@ static CG_FLOAT cg_update_d
  CG_FLOAT    beta,
  CG_FLOAT *gnorm2, /* 2-norm of g */
  CG_INT          n /* length of vectors */
- ) ;
+) ;
 
 static void cg_Yk
 (
@@ -703,12 +714,12 @@ static void cg_Yk
  CG_FLOAT *gnew, /* search direction */
  CG_FLOAT  *yty, /* y'y */
  CG_INT        n  /* length of the vectors */
- ) ;
+) ;
 
 static void cg_printParms
 (
  cg_parameter  *Parm
- ) ;
+) ;
 
 #ifdef __cplusplus
 }
@@ -740,11 +751,11 @@ int cg_descent /*  return status of solution process:
 										 11 (function nan or +-INF and could not be repaired)
 										 12 (invalid choice for memory parameter) */
 (
-	 CG_FLOAT            *x, /* input: starting guess, output: the solution */
-	 CG_INT                n, /* problem dimension */
+	 CG_FLOAT          *x, /* input: starting guess, output: the solution */
+	 CG_INT             n, /* problem dimension */
 	 cg_stats       *Stat, /* structure with statistics (can be NULL) */
 	 cg_parameter  *UParm, /* user parameters, NULL = use default parameters */
-	 CG_FLOAT      grad_tol, /* StopRule = 1: |g|_infty <= max (grad_tol,
+	 CG_FLOAT    grad_tol, /* StopRule = 1: |g|_infty <= max (grad_tol,
 														StopFac*initial |g|_infty) [default]
 														StopRule = 0: |g|_infty <= grad_tol(1+|f|) */
 	 CG_FLOAT      (*value) (CG_FLOAT *, CG_INT CG_CUSTOM_ARGS),  /* f = value (x, n) */
@@ -921,7 +932,7 @@ int cg_descent /*  return status of solution process:
 
 	/* initial function and gradient evaluations, initial direction */
 	Com.alpha = 0 ;
-	status = cg_evaluate ("fg", "n", &Com) ;
+	status = cg_evaluate (CG_EVALUATE_WHAT_FG, CG_EVALUATE_NAN_N, &Com) ;
 	f = Com.f ;
 	if ( status )
 	{
@@ -1010,7 +1021,7 @@ int cg_descent /*  return status of solution process:
 				if ( QuadF )
 				{
 					Com.alpha = Parm->psi1*alpha ;
-					status = cg_evaluate ("g", "y", &Com) ;
+					status = cg_evaluate (CG_EVALUATE_WHAT_G, CG_EVALUATE_NAN_Y, &Com) ;
 					if ( status ) goto Exit ;
 					if ( Com.df > dphi0 )
 					{
@@ -1040,7 +1051,7 @@ int cg_descent /*  return status of solution process:
 				{
 					t = CG_MAX (Parm->psi_lo, Com.df0/(dphi0*Parm->psi2)) ;
 					Com.alpha = CG_MIN (t, Parm->psi_hi)*alpha ;
-					status = cg_evaluate ("f", "y", &Com) ;
+					status = cg_evaluate (CG_EVALUATE_WHAT_F, CG_EVALUATE_NAN_Y, &Com) ;
 					if ( status ) goto Exit ;
 					ftemp = Com.f ;
 					denom = 2.*(((ftemp-f)/Com.alpha)-dphi0) ;
@@ -2274,7 +2285,7 @@ static int cg_Wolfe
  CG_FLOAT   alpha, /* stepsize */
  CG_FLOAT       f, /* function value associated with stepsize alpha */
  CG_FLOAT    dphi, /* derivative value associated with stepsize alpha */
- cg_com    *Com  /* cg com */
+ cg_com      *Com  /* cg com */
 )
 {
 	if ( dphi >= Com->wolfe_lo )
@@ -2328,8 +2339,8 @@ static int cg_Wolfe
 	 ========================================================================= */
 static int cg_tol
 (
- CG_FLOAT     gnorm, /* gradient sup-norm */
- cg_com    *Com    /* cg com */
+ CG_FLOAT  gnorm, /* gradient sup-norm */
+ cg_com     *Com  /* cg com */
 )
 {
 	/* StopRule = T => |grad|_infty <=max (tol, |grad|_infty*StopFact)
@@ -2385,14 +2396,14 @@ static int cg_line
 	/* evaluate function or gradient at Com->alpha (starting guess) */
 	if ( Com->QuadOK )
 	{
-		status = cg_evaluate ("fg", "y", Com) ;
+		status = cg_evaluate (CG_EVALUATE_WHAT_FG, CG_EVALUATE_NAN_Y, Com) ;
 		fb = Com->f ;
 		if ( !AWolfe ) fb -= Com->alpha*Com->wolfe_hi ;
 		qb = CG_TRUE ; /* function value at b known */
 	}
 	else
 	{
-		status = cg_evaluate ("g", "y", Com) ;
+		status = cg_evaluate (CG_EVALUATE_WHAT_G, CG_EVALUATE_NAN_Y, Com) ;
 		qb = CG_FALSE ;
 	}
 	if ( status ) return (status) ; /* function is undefined */
@@ -2441,7 +2452,7 @@ static int cg_line
 	{
 		if ( !qb )
 		{
-			status = cg_evaluate ("f", "n", Com) ;
+			status = cg_evaluate (CG_EVALUATE_WHAT_F, CG_EVALUATE_NAN_N, Com) ;
 			if ( status ) return (status) ;
 			if ( AWolfe ) fb = Com->f ;
 			else          fb = Com->f - b*Com->wolfe_hi ;
@@ -2499,7 +2510,7 @@ static int cg_line
 		b = CG_MAX (bmin, b) ;
 		Com->alphaold = Com->alpha ;
 		Com->alpha = b ;
-		status = cg_evaluate ("g", "p", Com) ;
+		status = cg_evaluate (CG_EVALUATE_WHAT_G, CG_EVALUATE_NAN_P, Com) ;
 		if ( status ) return (status) ;
 		b = Com->alpha ;
 		qb = CG_FALSE ;
@@ -2636,7 +2647,7 @@ Line:
 		if ( toggle > 2 ) toggle = 0 ;
 
 		Com->alpha = alpha ;
-		status = cg_evaluate ("fg", "n", Com) ;
+		status = cg_evaluate (CG_EVALUATE_WHAT_FG, CG_EVALUATE_NAN_N, Com) ;
 		if ( status ) return (status) ;
 		Com->alpha = alpha ;
 		f = Com->f ;
@@ -2788,7 +2799,7 @@ static int cg_contract
 		if ( toggle > 2 ) toggle = 0 ;
 
 		Com->alpha = alpha ;
-		status = cg_evaluate ("fg", "n", Com) ;
+		status = cg_evaluate (CG_EVALUATE_WHAT_FG, CG_EVALUATE_NAN_N, Com) ;
 		if ( status ) return (status) ;
 		f = Com->f ;
 		df = Com->df ;
@@ -2875,9 +2886,9 @@ static int cg_contract
 
 static int cg_evaluate
 (
- char    *what, /* fg = evaluate func and grad, g = grad only,f = func only*/
- char     *nan, /* y means check function/derivative values for nan */
- cg_com   *Com
+ cg_evaluate_what what, /* fg = evaluate func and grad, g = grad only,f = func only*/
+ cg_evaluate_nan   nan, /* y means check function/derivative values for nan */
+ cg_com           *Com
 )
 {
 	CG_INT n ;
@@ -2892,9 +2903,9 @@ static int cg_evaluate
 	gtemp = Com->gtemp ;
 	alpha = Com->alpha ;
 	/* check to see if values are nan */
-	if ( !strcmp (nan, "y") || !strcmp (nan, "p") )
+	if ( nan == CG_EVALUATE_NAN_Y || nan == CG_EVALUATE_NAN_P )
 	{
-		if ( !strcmp (what, "f") ) /* compute function */
+		if ( what == CG_EVALUATE_WHAT_F ) /* compute function */
 		{
 			cg_step (xtemp, x, d, alpha, n) ;
 			/* provisional function value */
@@ -2906,7 +2917,7 @@ static int cg_evaluate
 			{
 				for (i = 0; i < Parm->ntries; i++)
 				{
-					if ( !strcmp (nan, "p") ) /* contract from good alpha */
+					if ( nan == CG_EVALUATE_NAN_P ) /* contract from good alpha */
 					{
 						alpha = Com->alphaold + .8*(alpha - Com->alphaold) ;
 					}
@@ -2924,7 +2935,7 @@ static int cg_evaluate
 			}
 			Com->alpha = alpha ;
 		}
-		else if ( !strcmp (what, "g") ) /* compute gradient */
+		else if ( what == CG_EVALUATE_WHAT_G ) /* compute gradient */
 		{
 			cg_step (xtemp, x, d, alpha, n) ;
 			Com->cg_grad (gtemp, xtemp, n CG_CUSTOM_ARGUMENT(Com)) ;
@@ -2935,7 +2946,7 @@ static int cg_evaluate
 			{
 				for (i = 0; i < Parm->ntries; i++)
 				{
-					if ( !strcmp (nan, "p") ) /* contract from good alpha */
+					if ( nan == CG_EVALUATE_NAN_P ) /* contract from good alpha */
 					{
 						alpha = Com->alphaold + .8*(alpha - Com->alphaold) ;
 					}
@@ -2978,7 +2989,7 @@ static int cg_evaluate
 			{
 				for (i = 0; i < Parm->ntries; i++)
 				{
-					if ( !strcmp (nan, "p") ) /* contract from good alpha */
+					if ( nan == CG_EVALUATE_NAN_P ) /* contract from good alpha */
 					{
 						alpha = Com->alphaold + .8*(alpha - Com->alphaold) ;
 					}
@@ -3012,7 +3023,7 @@ static int cg_evaluate
 	}
 	else                                /* evaluate without nan checking */
 	{
-		if ( !strcmp (what, "fg") )     /* compute function and gradient */
+		if ( what == CG_EVALUATE_WHAT_FG )     /* compute function and gradient */
 		{
 			if ( alpha == 0 )        /* evaluate at x */
 			{
@@ -3049,7 +3060,7 @@ static int cg_evaluate
 					(Com->df == CG_FLOAT_INF) || (Com->f == CG_FLOAT_INF) ||
 					(Com->df ==-CG_FLOAT_INF) || (Com->f ==-CG_FLOAT_INF) ) return (11) ;
 		}
-		else if ( !strcmp (what, "f") ) /* compute function */
+		else if ( what == CG_EVALUATE_WHAT_F ) /* compute function */
 		{
 			cg_step (xtemp, x, d, alpha, n) ;
 			Com->f = Com->cg_value (xtemp, n CG_CUSTOM_ARGUMENT(Com)) ;
@@ -3076,7 +3087,7 @@ static int cg_evaluate
 	 Compute the minimizer of a Hermite cubic. If the computed minimizer
 	 outside [a, b], return -1 (it is assumed that a >= 0).
 	 ========================================================================= */
-	static CG_FLOAT cg_cubic
+static CG_FLOAT cg_cubic
 (
  CG_FLOAT  a,
  CG_FLOAT fa, /* function value at a */
@@ -3084,7 +3095,7 @@ static int cg_evaluate
  CG_FLOAT  b,
  CG_FLOAT fb, /* function value at b */
  CG_FLOAT db  /* derivative at b */
- )
+)
 {
 	CG_FLOAT c, d1, d2, delta, t, v, w ;
 	delta = b - a ;
@@ -3118,7 +3129,7 @@ static int cg_evaluate
 	 =========================================================================
 	 Compute y = A*x or A'*x where A is a dense rectangular matrix
 	 ========================================================================= */
-	static void cg_matvec
+static void cg_matvec
 (
  CG_FLOAT *y, /* product vector */
  CG_FLOAT *A, /* dense matrix */
@@ -3126,7 +3137,7 @@ static int cg_evaluate
  int     n, /* number of columns of A */
  CG_INT     m, /* number of rows of A */
  int     w  /* T => y = A*x, F => y = A'*x */
- )
+)
 {
 	/* if the blas have not been installed, then hand code the produce */
 #ifdef CG_NO_BLAS
@@ -3194,14 +3205,14 @@ static int cg_evaluate
 	 =========================================================================
 	 Solve Rx = y or R'x = y where R is a dense upper triangular matrix
 	 ========================================================================= */
-	static void cg_trisolve
+static void cg_trisolve
 (
  CG_FLOAT *x, /* right side on input, solution on output */
  CG_FLOAT *R, /* dense matrix */
- int     m, /* leading dimension of R */
- int     n, /* dimension of triangular system */
- int     w  /* T => Rx = y, F => R'x = y */
- )
+ int       m, /* leading dimension of R */
+ int       n, /* dimension of triangular system */
+ int       w  /* T => Rx = y, F => R'x = y */
+)
 {
 	int i, l ;
 	if ( w )
@@ -3241,11 +3252,11 @@ static int cg_evaluate
 	 =========================================================================
 	 Compute infinity norm of vector
 	 ========================================================================= */
-	static CG_FLOAT cg_inf
+static CG_FLOAT cg_inf
 (
  CG_FLOAT *x, /* vector */
  CG_INT     n /* length of vector */
- )
+)
 {
 #ifdef CG_NO_BLAS
 	CG_INT i, n5 ;
@@ -3299,13 +3310,13 @@ static int cg_evaluate
 	 =========================================================================
 	 compute y = s*x where s is a scalar
 	 ========================================================================= */
-	static void cg_scale0
+static void cg_scale0
 (
  CG_FLOAT *y, /* output vector */
  CG_FLOAT *x, /* input vector */
  CG_FLOAT  s, /* scalar */
- int     n /* length of vector */
- )
+ int       n /* length of vector */
+)
 {
 	int i, n5 ;
 	n5 = n % 5 ;
@@ -3351,13 +3362,13 @@ static int cg_evaluate
 	 =========================================================================
 	 compute y = s*x where s is a scalar
 	 ========================================================================= */
-	static void cg_scale
+static void cg_scale
 (
  CG_FLOAT *y, /* output vector */
  CG_FLOAT *x, /* input vector */
  CG_FLOAT  s, /* scalar */
  CG_INT     n /* length of vector */
- )
+)
 {
 	CG_INT i, n5 ;
 	n5 = n % 5 ;
@@ -3430,13 +3441,13 @@ static int cg_evaluate
 	 =========================================================================
 	 Compute x = x + alpha d
 	 ========================================================================= */
-	static void cg_daxpy0
+static void cg_daxpy0
 (
  CG_FLOAT     *x, /* input and output vector */
  CG_FLOAT     *d, /* direction */
  CG_FLOAT  alpha, /* stepsize */
- int         n  /* length of the vectors */
- )
+ int           n  /* length of the vectors */
+)
 {
 	CG_INT i, n5 ;
 	n5 = n % 5 ;
@@ -3472,13 +3483,13 @@ static int cg_evaluate
 	 =========================================================================
 	 Compute x = x + alpha d
 	 ========================================================================= */
-	static void cg_daxpy
+static void cg_daxpy
 (
  CG_FLOAT     *x, /* input and output vector */
  CG_FLOAT     *d, /* direction */
  CG_FLOAT  alpha, /* stepsize */
  CG_INT         n  /* length of the vectors */
- )
+)
 {
 #ifdef CG_NO_BLAS
 	CG_INT i, n5 ;
@@ -3555,12 +3566,12 @@ static int cg_evaluate
 	 =========================================================================
 	 Compute dot product of x and y, vectors of length n
 	 ========================================================================= */
-	static CG_FLOAT cg_dot0
+static CG_FLOAT cg_dot0
 (
  CG_FLOAT *x, /* first vector */
  CG_FLOAT *y, /* second vector */
  int     n /* length of vectors */
- )
+)
 {
 	CG_INT i, n5 ;
 	CG_FLOAT t ;
@@ -3581,12 +3592,12 @@ static int cg_evaluate
 	 =========================================================================
 	 Compute dot product of x and y, vectors of length n
 	 ========================================================================= */
-	static CG_FLOAT cg_dot
+static CG_FLOAT cg_dot
 (
  CG_FLOAT *x, /* first vector */
  CG_FLOAT *y, /* second vector */
  CG_INT     n /* length of vectors */
- )
+)
 {
 #ifdef CG_NO_BLAS
 	CG_INT i, n5 ;
@@ -3633,12 +3644,12 @@ static int cg_evaluate
 	 =========================================================================
 	 Copy vector x into vector y
 	 ========================================================================= */
-	static void cg_copy0
+static void cg_copy0
 (
  CG_FLOAT *y, /* output of copy */
  CG_FLOAT *x, /* input of copy */
  int     n  /* length of vectors */
- )
+)
 {
 	int i, n5 ;
 	n5 = n % 5 ;
@@ -3730,14 +3741,14 @@ static int cg_evaluate
 	 =========================================================================
 	 Compute xtemp = x + alpha d
 	 ========================================================================= */
-	static void cg_step
+static void cg_step
 (
  CG_FLOAT *xtemp, /*output vector */
  CG_FLOAT     *x, /* initial vector */
  CG_FLOAT     *d, /* search direction */
  CG_FLOAT  alpha, /* stepsize */
- CG_INT         n  /* length of the vectors */
- )
+ CG_INT        n  /* length of the vectors */
+)
 {
 	CG_INT n5, i ;
 	n5 = n % 5 ;
@@ -3773,12 +3784,12 @@ static int cg_evaluate
 	 =========================================================================
 	 initialize x to a given scalar value
 	 ========================================================================= */
-	static void cg_init
+static void cg_init
 (
  CG_FLOAT *x, /* input and output vector */
  CG_FLOAT  s, /* scalar */
  CG_INT     n /* length of vector */
- )
+)
 {
 	CG_INT i, n5 ;
 	n5 = n % 5 ;
@@ -3945,8 +3956,8 @@ static CG_FLOAT cg_update_inf
  CG_FLOAT *gold, /* old g */
  CG_FLOAT *gnew, /* new g */
  CG_FLOAT    *d, /* d */
- CG_INT        n /* length of vectors */
- )
+ CG_INT       n /* length of vectors */
+)
 {
 	CG_INT i, n5 ;
 	CG_FLOAT s, t ;
@@ -4040,14 +4051,14 @@ static CG_FLOAT cg_update_inf
 	 ykyk = 2-norm(gnew-gold)^2
 	 ykgk = (gnew-gold) dot gnew
 	 ========================================================================= */
-	static CG_FLOAT cg_update_ykyk
+static CG_FLOAT cg_update_ykyk
 (
  CG_FLOAT *gold, /* old g */
  CG_FLOAT *gnew, /* new g */
  CG_FLOAT *Ykyk,
  CG_FLOAT *Ykgk,
- CG_INT        n /* length of vectors */
- )
+ CG_INT       n  /* length of vectors */
+)
 {
 	CG_INT i, n5 ;
 	CG_FLOAT t, gnorm, yk, ykyk, ykgk ;
@@ -4117,14 +4128,14 @@ static CG_FLOAT cg_update_inf
 	 =========================================================================
 	 Set gold = gnew, compute inf-norm of gnew & 2-norm of gnew, set d = -gnew
 	 ========================================================================= */
-	static CG_FLOAT cg_update_inf2
+static CG_FLOAT cg_update_inf2
 (
  CG_FLOAT   *gold, /* old g */
  CG_FLOAT   *gnew, /* new g */
  CG_FLOAT      *d, /* d */
  CG_FLOAT *gnorm2, /* 2-norm of g */
  CG_INT          n /* length of vectors */
- )
+)
 {
 	CG_INT i, n5 ;
 	CG_FLOAT gnorm, s, t ;
@@ -4186,14 +4197,14 @@ static CG_FLOAT cg_update_inf
 	 =========================================================================
 	 Set d = -g + beta*d, compute 2-norm of d, and optionally the 2-norm of g
 	 ========================================================================= */
-	static CG_FLOAT cg_update_d
+static CG_FLOAT cg_update_d
 (
  CG_FLOAT      *d,
  CG_FLOAT      *g,
  CG_FLOAT    beta,
  CG_FLOAT *gnorm2, /* 2-norm of g */
  CG_INT          n /* length of vectors */
- )
+)
 {
 	CG_INT i, n5 ;
 	CG_FLOAT dnorm2, s, t ;
@@ -4301,7 +4312,7 @@ static CG_FLOAT cg_update_inf
 	 =========================================================================
 	 Compute y = gnew - gold, set gold = gnew, compute y'y
 	 ========================================================================= */
-	static void cg_Yk
+static void cg_Yk
 (
  CG_FLOAT    *y, /*output vector */
  CG_FLOAT *gold, /* initial vector */
@@ -4439,10 +4450,10 @@ static CG_FLOAT cg_update_inf
 	 to initialize the structure, and then individual elements in the structure
 	 could be changed, before passing the structure to cg_descent.
 	 =========================================================================*/
-	void cg_default
+void cg_default
 (
  cg_parameter   *Parm
- )
+)
 {
 	/* T => print final function value
 		 F => no printout of final function value */
@@ -4636,10 +4647,10 @@ static CG_FLOAT cg_update_inf
 	 =========================================================================
 	 Print the contents of the cg_parameter structure
 	 ========================================================================= */
-	static void cg_printParms
+static void cg_printParms
 (
  cg_parameter  *Parm
- )
+)
 {
 	printf ("PARAMETERS:\n") ;
 	printf ("\n") ;
